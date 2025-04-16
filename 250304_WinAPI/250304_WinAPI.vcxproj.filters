@@ -75,6 +75,9 @@
     <ClCompile Include="LoadingScene.cpp">
       <Filter>MainGame\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Tiles.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="LoadingScene.h">
       <Filter>MainGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Tiles.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

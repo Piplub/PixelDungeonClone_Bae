@@ -1,6 +1,5 @@
-#pragma once
+﻿#pragma once
 #include "GameObject.h"
-#include "config.h"
 
 
 class Image;
@@ -9,14 +8,23 @@ class TilemapTool : public GameObject
 {
 private:
 	Image* sampleTile;
-	RECT rcSampleTile;
 
 	TILE_INFO tileInfo[TILE_X * TILE_Y];
-	RECT rcMain;
 
-	POINT selectedTile;
+	const int gridSize{ 12 };
+	
+	//POINT selectedTile;
 
 	Button* saveButton;
+
+	int selectedTileCode;
+
+	RECT tile000rc;
+	RECT tile110rc;
+	RECT tile111rc;
+
+	RECT rcMain;
+	RECT mainGrid[TILE_X * TILE_Y];
 
 public:
 	virtual HRESULT Init() override;

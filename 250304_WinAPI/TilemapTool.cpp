@@ -1,7 +1,8 @@
-#include "TilemapTool.h"
+ï»¿#include "TilemapTool.h"
 #include "Image.h"
 #include "CommonFunction.h"
 #include "Button.h"
+#include "Tiles.h"
 #include <functional>
 
 HRESULT TilemapTool::Init()
@@ -9,43 +10,46 @@ HRESULT TilemapTool::Init()
 	SetClientRect(g_hWnd, TILEMAPTOOL_X, TILEMAPTOOL_Y);
 
 	sampleTile = ImageManager::GetInstance()->AddImage(
-		"¹èÆ²½ÃÆ¼_»ùÇÃÅ¸ÀÏ", L"Image/mapTiles.bmp", 640, 288,
+		"PixelDungeon_Tile0", L"Image/tiles0.bmp", 256, 64,
 		SAMPLE_TILE_X, SAMPLE_TILE_Y);
 
-	// »ùÇÃ Å¸ÀÏ ¿µ¿ª
-	rcSampleTile.left = TILEMAPTOOL_X - sampleTile->GetWidth();
-	rcSampleTile.top = 0;
-	rcSampleTile.right = TILEMAPTOOL_X;
-	rcSampleTile.bottom = sampleTile->GetHeight();
+	selectedTileCode = 0b000;
+
+	// ìƒ˜í”Œ íƒ€ì¼ ì˜ì—­
+	tile000rc = { 900, 50, 950, 100 };
+	tile110rc = { 1000, 50, 1050, 100 };
+	tile111rc = { 1100, 50, 1150, 100 };
 
 	for (int i = 0; i < TILE_Y; ++i)
 	{
 		for (int j = 0; j < TILE_X; ++j)
 		{
-			tileInfo[i * TILE_X + j].frameX = 3;
-			tileInfo[i * TILE_X + j].frameY = 0;
-			tileInfo[i * TILE_X + j].rc.left = j * TILE_SIZE;
-			tileInfo[i * TILE_X + j].rc.top = i * TILE_SIZE;
-			tileInfo[i * TILE_X + j].rc.right = 
-				tileInfo[i * TILE_X + j].rc.left + TILE_SIZE;
-			tileInfo[i * TILE_X + j].rc.bottom = 
-				tileInfo[i * TILE_X + j].rc.top + TILE_SIZE;
+			tileInfo[i * TILE_X + j].tileCode = selectedTileCode;
+			tileInfo[i * TILE_X + j].indX = j;
+			tileInfo[i * TILE_X + j].indY = i;
 		}
 	}
 
-	Load();
+	//Load();
 
-	// ¸ŞÀÎ Å¸ÀÏ ¿µ¿ª
-	rcMain.left = 0;
-	rcMain.top = 0;
-	rcMain.right = TILE_X * TILE_SIZE;
-	rcMain.bottom = TILE_Y * TILE_SIZE;
-
-	// UI - ¹öÆ°
+	/// ë©”ì¸ íƒ€ì¼ ì˜ì—­
+	// whole box
+	rcMain = { 200, 50, 200 + TILE_X * gridSize, 50 + TILE_Y * gridSize };
+	// grid
+	for (int i = 0; i < TILE_Y; ++i)
+	{
+		for (int j = 0; j < TILE_X; ++j)
+		{
+			mainGrid[i * TILE_X + j].left = 200 + j * gridSize;
+			mainGrid[i * TILE_X + j].top = 50 + i * gridSize;
+			mainGrid[i * TILE_X + j].right = mainGrid[i * TILE_X + j].left + gridSize;
+			mainGrid[i * TILE_X + j].bottom = mainGrid[i * TILE_X + j].top + gridSize;
+		}
+	}
+	
+	// UI - ë²„íŠ¼
 	saveButton = new Button();
-	saveButton->Init(
-		TILEMAPTOOL_X - sampleTile->GetWidth() + 180,
-		sampleTile->GetHeight() + 100);
+	saveButton->Init(1000,500);
 	//saveButton->SetFunction(&TilemapTool::Save, this);
 	//saveButton->SetFunction(std::bind(&TilemapTool::Save, this));
 	saveButton->SetFunction([this]() {
@@ -67,14 +71,27 @@ void TilemapTool::Release()
 
 void TilemapTool::Update()
 {
-	if (PtInRect(&rcSampleTile, g_ptMouse))
+	if (PtInRect(&tile000rc, g_ptMouse))
 	{
 		if (KeyManager::GetInstance()->IsOnceKeyDown(VK_LBUTTON))
 		{
-			int posX = g_ptMouse.x - rcSampleTile.left;
-			int posY = g_ptMouse.y - rcSampleTile.top;
-			selectedTile.x = posX / TILE_SIZE;
-			selectedTile.y = posY / TILE_SIZE;
+			selectedTileCode = 0b000;
+		}
+	}
+
+	if (PtInRect(&tile110rc, g_ptMouse))
+	{
+		if (KeyManager::GetInstance()->IsOnceKeyDown(VK_LBUTTON))
+		{
+			selectedTileCode = 0b110;
+		}
+	}
+
+	if (PtInRect(&tile111rc, g_ptMouse))
+	{
+		if (KeyManager::GetInstance()->IsOnceKeyDown(VK_LBUTTON))
+		{
+			selectedTileCode = 0b111;
 		}
 	}
 	else if (PtInRect(&rcMain, g_ptMouse))
@@ -83,10 +100,9 @@ void TilemapTool::Update()
 		{
 			int posX = g_ptMouse.x;
 			int posY = g_ptMouse.y;
-			int tileX = posX / TILE_SIZE;
-			int tileY = posY / TILE_SIZE;
-			tileInfo[tileY * TILE_X + tileX].frameX = selectedTile.x;
-			tileInfo[tileY * TILE_X + tileX].frameY = selectedTile.y;
+			int tileX = (posX-200) / gridSize;
+			int tileY = (posY-50) / gridSize;
+			tileInfo[tileY * TILE_X + tileX].tileCode = selectedTileCode;
 		}
 	}
 
@@ -97,35 +113,51 @@ void TilemapTool::Render(HDC hdc)
 {
 	PatBlt(hdc, 0, 0, TILEMAPTOOL_X, TILEMAPTOOL_Y, WHITENESS);
 
-	// ¸ŞÀÎ Å¸ÀÏ ¿µ¿ª
+	// ë©”ì¸ íƒ€ì¼ ì˜ì—­
 	for (int i = 0; i < TILE_X * TILE_Y; ++i)
 	{
-		sampleTile->FrameRender(hdc, tileInfo[i].rc.left,
-			tileInfo[i].rc.top, tileInfo[i].frameX,
-			tileInfo[i].frameY, false, false);
+		sampleTile->FrameRender(hdc, 
+			200 + tileInfo[i].indX * gridSize,
+			50 + tileInfo[i].indY * gridSize,
+			gridSize, gridSize,
+			(int)FrameAdapter(tileInfo[i].tileCode).x,
+			(int)FrameAdapter(tileInfo[i].tileCode).y,
+			false, false);
 	}
 
-	// »ùÇÃ Å¸ÀÏ ¿µ¿ª
-	sampleTile->Render(hdc, TILEMAPTOOL_X - sampleTile->GetWidth(), 0);
+	/*for (auto& g : mainGrid) {
+		RenderRect()
+	}*/
 
-	// ¼±ÅÃµÈ Å¸ÀÏ
+	// ìƒ˜í”Œ íƒ€ì¼ ì˜ì—­
+	sampleTile->FrameRender(hdc, tile000rc.left, tile000rc.top, 50, 50, 
+		(int)FrameAdapter(0b000).x, (int)FrameAdapter(0b000).y, false, false);
+
+	sampleTile->FrameRender(hdc, tile110rc.left, tile110rc.top, 50, 50,
+		(int)FrameAdapter(0b110).x, (int)FrameAdapter(0b110).y, false, false);
+
+	sampleTile->FrameRender(hdc, tile111rc.left, tile111rc.top, 50, 50,
+		(int)FrameAdapter(0b111).x, (int)FrameAdapter(0b111).y, false, false);
+
+	// ì„ íƒëœ íƒ€ì¼
 	sampleTile->FrameRender(hdc, 
-		TILEMAPTOOL_X - sampleTile->GetWidth(),
-		sampleTile->GetHeight() + 100,
-		selectedTile.x, selectedTile.y, false, false);
+		975, 300, 50, 50,
+		(int)FrameAdapter(selectedTileCode).x,
+		(int)FrameAdapter(selectedTileCode).y,
+		false, false);
 
 	if (saveButton) saveButton->Render(hdc);
 }
 
 void TilemapTool::Save()
 {
-	// ÆÄÀÏ ÀúÀå
+	// íŒŒì¼ ì €ì¥
 	HANDLE hFile = CreateFile(
 		L"TileMapData.dat", GENERIC_WRITE, 0, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		MessageBox(g_hWnd, TEXT("ÆÄÀÏ »ı¼º ½ÇÆĞ"), TEXT("°æ°í"), MB_OK);
+		MessageBox(g_hWnd, TEXT("íŒŒì¼ ìƒì„± ì‹¤íŒ¨"), TEXT("ê²½ê³ "), MB_OK);
 		return;
 	}
 	DWORD dwByte = 0;
@@ -135,19 +167,19 @@ void TilemapTool::Save()
 
 void TilemapTool::Load()
 {	
-	// ÆÄÀÏ ·Îµå
+	// íŒŒì¼ ë¡œë“œ
 	HANDLE hFile = CreateFile(
 		L"TileMapData.dat", GENERIC_READ, 0, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		MessageBox(g_hWnd, TEXT("ÆÄÀÏ ¿­±â ½ÇÆĞ"), TEXT("°æ°í"), MB_OK);
+		MessageBox(g_hWnd, TEXT("íŒŒì¼ ì—´ê¸° ì‹¤íŒ¨"), TEXT("ê²½ê³ "), MB_OK);
 		return;
 	}
 	DWORD dwByte = 0;
 	if (!ReadFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL))
 	{
-		MessageBox(g_hWnd, TEXT("ÆÄÀÏ ÀĞ±â ½ÇÆĞ"), TEXT("°æ°í"), MB_OK);
+		MessageBox(g_hWnd, TEXT("íŒŒì¼ ì½ê¸° ì‹¤íŒ¨"), TEXT("ê²½ê³ "), MB_OK);
 	}
 	CloseHandle(hFile);
 }

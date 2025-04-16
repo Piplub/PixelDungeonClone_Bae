@@ -17,7 +17,7 @@ HRESULT MainGame::Init()
 	SceneManager::GetInstance()->AddScene("전투씬_1", new BattleScene());
 	SceneManager::GetInstance()->AddScene("타일맵툴", new TilemapTool());
 	SceneManager::GetInstance()->AddLoadingScene("로딩_1", new LoadingScene());
-	SceneManager::GetInstance()->ChangeScene("A*알고리즘");
+	SceneManager::GetInstance()->ChangeScene("타일맵툴");
 
 	hdc = GetDC(g_hWnd);
 

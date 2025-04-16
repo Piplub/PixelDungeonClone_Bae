@@ -1,16 +1,16 @@
-#pragma once
+ï»¿#pragma once
 #include "GameObject.h"
 #include <functional>
 
 /*
-	ÇÔ¼ö Æ÷ÀÎÅÍ : ÇÔ¼öÀÇ ¸Ş¸ğ¸® ÁÖ¼Ò¸¦ ÀúÀåÇÒ ¼ö ÀÖ´Â º¯¼ö
-	(º¯¼ö)Æ÷ÀÎÅÍ : º¯¼öÀÇ ¸Ş¸ğ¸® ÁÖ¼Ò¸¦ ÀúÀåÇÒ ¼ö ÀÖ´Â º¯¼ö
+	í•¨ìˆ˜ í¬ì¸í„° : í•¨ìˆ˜ì˜ ë©”ëª¨ë¦¬ ì£¼ì†Œë¥¼ ì €ì¥í•  ìˆ˜ ìˆëŠ” ë³€ìˆ˜
+	(ë³€ìˆ˜)í¬ì¸í„° : ë³€ìˆ˜ì˜ ë©”ëª¨ë¦¬ ì£¼ì†Œë¥¼ ì €ì¥í•  ìˆ˜ ìˆëŠ” ë³€ìˆ˜
 
 	int a = 10;
-	int* pA = &a;	// º¯¼ö aÀÇ ¸Ş¸ğ¸® ÁÖ¼Ò¸¦ ÀúÀå
+	int* pA = &a;	// ë³€ìˆ˜ aì˜ ë©”ëª¨ë¦¬ ì£¼ì†Œë¥¼ ì €ì¥
 	
 	void sum(int a, int b);
-	void (*pFunc)(int, int) = sum;	// ÇÔ¼ö sumÀÇ ¸Ş¸ğ¸® ÁÖ¼Ò¸¦ ÀúÀå
+	void (*pFunc)(int, int) = sum;	// í•¨ìˆ˜ sumì˜ ë©”ëª¨ë¦¬ ì£¼ì†Œë¥¼ ì €ì¥
 
 	sum(10, 20);
 	pFunc(10, 20);
@@ -58,6 +58,7 @@ public:
 		buttonFunc = func;
 	}
 
+	inline Image* GetImage() { return image; }
 	//void SetFunction(ButtonFunc func)
 	//{
 	//	buttonFunc1 = func;
