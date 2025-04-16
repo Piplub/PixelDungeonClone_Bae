@@ -1,4 +1,4 @@
-#include "ImageManager.h"
+﻿#include "ImageManager.h"
 #include "Image.h"
 
 void ImageManager::Init()
@@ -67,6 +67,58 @@ Image* ImageManager::AddImage(string key,
 	mapImages.insert(make_pair(key, image));
 	return image;
 }
+
+Image* ImageManager::AddZoomedImage(
+	string key,
+	const wchar_t* filePath,
+	int width, int height,
+	int maxFrameX, int maxFrameY,
+	float zoom,
+	bool isTransparent,
+	COLORREF transColor)
+{
+	int zoomPercent = static_cast<int>(zoom * 100);
+	string zoomedKey = key + "_zoom" + to_string(zoomPercent);
+
+	Image* found = FindImage(zoomedKey);
+	if (found) return found;
+
+	Image* original = FindImage(key);
+	if (original == nullptr)
+	{
+		original = AddImage(key, filePath, width, height, maxFrameX, maxFrameY, isTransparent, transColor);
+		//if (!original) return nullptr;
+	}
+
+	int scaledW = static_cast<int>(width * zoom);
+	int scaledH = static_cast<int>(height * zoom);
+
+	HDC hdc = GetDC(g_hWnd); 
+	HDC tempDC = CreateCompatibleDC(hdc);
+	HBITMAP zoomedBmp = CreateCompatibleBitmap(hdc, scaledW, scaledH);
+	SelectObject(tempDC, zoomedBmp);
+
+	StretchBlt(
+		tempDC, 0, 0, scaledW, scaledH,
+		original->GetMemDC(), 0, 0, width, height,
+		SRCCOPY);
+
+	ReleaseDC(g_hWnd, hdc); 
+
+	Image* zoomedImage = new Image();
+	if (FAILED(zoomedImage->InitWithExternalBitmap(
+		zoomedBmp, tempDC, scaledW, scaledH,
+		maxFrameX, maxFrameY, isTransparent, transColor)))
+	{
+		zoomedImage->Release();
+		delete zoomedImage;
+		return nullptr;
+	}
+
+	mapImages.insert(make_pair(zoomedKey, zoomedImage));
+	return zoomedImage;
+}
+
 
 void ImageManager::DeleteImage(string key)
 {

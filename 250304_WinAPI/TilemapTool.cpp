@@ -9,16 +9,20 @@ HRESULT TilemapTool::Init()
 {
 	SetClientRect(g_hWnd, TILEMAPTOOL_X, TILEMAPTOOL_Y);
 
-	sampleTile = ImageManager::GetInstance()->AddImage(
-		"PixelDungeon_Tile0", L"Image/tiles0.bmp", 256, 64,
-		SAMPLE_TILE_X, SAMPLE_TILE_Y);
+	nowZoomScale = 0;
+
+	for (int i = 0; i < 5; ++i) {
+		zoomedSampleTile[i] = ImageManager::GetInstance()->AddZoomedImage(
+			"PixelDungeon_Tile0", L"Image/tiles0.bmp", 256, 64,
+			SAMPLE_TILE_X, SAMPLE_TILE_Y, zoomScales[i]);
+	}
 
 	selectedTileCode = 0b000;
 
 	// 샘플 타일 영역
-	tile000rc = { 900, 50, 950, 100 };
-	tile110rc = { 1000, 50, 1050, 100 };
-	tile111rc = { 1100, 50, 1150, 100 };
+	tile000rc = { 900, 50, 948, 98 };
+	tile110rc = { 1000, 50, 1048, 98 };
+	tile111rc = { 1100, 50, 1148, 98 };
 
 	for (int i = 0; i < TILE_Y; ++i)
 	{
@@ -34,14 +38,14 @@ HRESULT TilemapTool::Init()
 
 	/// 메인 타일 영역
 	// whole box
-	rcMain = { 200, 50, 200 + TILE_X * gridSize, 50 + TILE_Y * gridSize };
+	rcMain = { 200, 30, 200 + TILE_X * gridSize, 30 + TILE_Y * gridSize };
 	// grid
 	for (int i = 0; i < TILE_Y; ++i)
 	{
 		for (int j = 0; j < TILE_X; ++j)
 		{
 			mainGrid[i * TILE_X + j].left = 200 + j * gridSize;
-			mainGrid[i * TILE_X + j].top = 50 + i * gridSize;
+			mainGrid[i * TILE_X + j].top = 30 + i * gridSize;
 			mainGrid[i * TILE_X + j].right = mainGrid[i * TILE_X + j].left + gridSize;
 			mainGrid[i * TILE_X + j].bottom = mainGrid[i * TILE_X + j].top + gridSize;
 		}
@@ -56,6 +60,8 @@ HRESULT TilemapTool::Init()
 		this->Save();
 		});
 
+	hPen_forGrid = CreatePen(PS_SOLID, 1, RGB(0, 168, 107));
+
 	return S_OK;
 }
 
@@ -67,6 +73,8 @@ void TilemapTool::Release()
 		delete saveButton;
 		saveButton = nullptr;
 	}
+
+	DeleteObject(hPen_forGrid);
 }
 
 void TilemapTool::Update()
@@ -101,7 +109,7 @@ void TilemapTool::Update()
 			int posX = g_ptMouse.x;
 			int posY = g_ptMouse.y;
 			int tileX = (posX-200) / gridSize;
-			int tileY = (posY-50) / gridSize;
+			int tileY = (posY-30) / gridSize;
 			tileInfo[tileY * TILE_X + tileX].tileCode = selectedTileCode;
 		}
 	}
@@ -116,32 +124,37 @@ void TilemapTool::Render(HDC hdc)
 	// 메인 타일 영역
 	for (int i = 0; i < TILE_X * TILE_Y; ++i)
 	{
-		sampleTile->FrameRender(hdc, 
+		zoomedSampleTile[nowZoomScale]->FrameRender(hdc,
 			200 + tileInfo[i].indX * gridSize,
-			50 + tileInfo[i].indY * gridSize,
-			gridSize, gridSize,
+			30 + tileInfo[i].indY * gridSize,
 			(int)FrameAdapter(tileInfo[i].tileCode).x,
 			(int)FrameAdapter(tileInfo[i].tileCode).y,
 			false, false);
 	}
 
-	/*for (auto& g : mainGrid) {
-		RenderRect()
-	}*/
+	HPEN hOldPen = (HPEN)SelectObject(hdc, hPen_forGrid);
+
+	HBRUSH hNullBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+	HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hNullBrush);
+	for (auto& g : mainGrid) {
+		RenderRect(hdc, g);
+	}
+	SelectObject(hdc, hOldPen);
+	SelectObject(hdc, hOldBrush);
 
 	// 샘플 타일 영역
-	sampleTile->FrameRender(hdc, tile000rc.left, tile000rc.top, 50, 50, 
+	zoomedSampleTile[4]->FrameRender(hdc, tile000rc.left, tile000rc.top,
 		(int)FrameAdapter(0b000).x, (int)FrameAdapter(0b000).y, false, false);
 
-	sampleTile->FrameRender(hdc, tile110rc.left, tile110rc.top, 50, 50,
+	zoomedSampleTile[4]->FrameRender(hdc, tile110rc.left, tile110rc.top,
 		(int)FrameAdapter(0b110).x, (int)FrameAdapter(0b110).y, false, false);
 
-	sampleTile->FrameRender(hdc, tile111rc.left, tile111rc.top, 50, 50,
+	zoomedSampleTile[4]->FrameRender(hdc, tile111rc.left, tile111rc.top,
 		(int)FrameAdapter(0b111).x, (int)FrameAdapter(0b111).y, false, false);
 
 	// 선택된 타일
-	sampleTile->FrameRender(hdc, 
-		975, 300, 50, 50,
+	zoomedSampleTile[4]->FrameRender(hdc,
+		975, 300,
 		(int)FrameAdapter(selectedTileCode).x,
 		(int)FrameAdapter(selectedTileCode).y,
 		false, false);

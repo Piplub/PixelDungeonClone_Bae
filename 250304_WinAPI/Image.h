@@ -70,6 +70,10 @@ public:
 		int maxFrameX, int maxFrameY,
 		bool isTransparent = FALSE, COLORREF transColor = FALSE);
 
+	// 다른 비트맵으로 이미지를 생성하는 함수
+	HRESULT InitWithExternalBitmap(HBITMAP bmp, HDC memDC, int width, int height,
+		int maxFrameX, int maxFrameY, bool isTransparent = FALSE, COLORREF transColor = FALSE);
+
 	// 화면에 출력
 	void Render(HDC hdc, int destX = 0, int destY = 0);
 	void Render(HDC hdc, int destX, int destY, int frameIndex, bool isFlip = false);

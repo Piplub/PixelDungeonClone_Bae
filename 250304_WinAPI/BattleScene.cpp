@@ -53,9 +53,8 @@ void BattleScene::Render(HDC hdc)
 	for (int i = 0; i < TILE_X * TILE_Y; ++i)
 	{
 		sampleTile->FrameRender(hdc,
-			240 + tileInfo[i].indX * 12,
-			50 + tileInfo[i].indY * 12,
-			12, 12,
+			240 + tileInfo[i].indX * 16,
+			30 + tileInfo[i].indY * 16,
 			(int)FrameAdapter(tileInfo[i].tileCode).x,
 			(int)FrameAdapter(tileInfo[i].tileCode).y,
 			false, false);

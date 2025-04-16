@@ -7,11 +7,14 @@ class Button;
 class TilemapTool : public GameObject
 {
 private:
-	Image* sampleTile;
+	Image* zoomedSampleTile[5];
+	const float zoomScales[5] = { 1.0f, 1.5f, 2.0f, 2.5f, 3.0f };
+	int nowZoomScale;
 
 	TILE_INFO tileInfo[TILE_X * TILE_Y];
 
-	const int gridSize{ 12 };
+	const int gridSize{ 16 };
+	HPEN hPen_forGrid;
 	
 	//POINT selectedTile;
 

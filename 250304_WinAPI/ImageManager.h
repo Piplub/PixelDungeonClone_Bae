@@ -1,13 +1,13 @@
-#pragma once
+ï»¿#pragma once
 #include "Singleton.h"
 #include "config.h"
 
 ///*
-//	¹è¿­ : ÀÎµ¦½º -> µ¥ÀÌÅÍ
-//	stl::vector : ÀÎµ¦½º -> µ¥ÀÌÅÍ
-//	std::map : Å° -> µ¥ÀÌÅÍ
+//	ë°°ì—´ : ì¸ë±ìŠ¤ -> ë°ì´í„°
+//	stl::vector : ì¸ë±ìŠ¤ -> ë°ì´í„°
+//	std::map : í‚¤ -> ë°ì´í„°
 //
-//	·¹µå-ºí·¢ Æ®¸® ±¸Çö : »ğÀÔ, »èÁ¦, °Ë»ö O(logN) ½Ã°£º¹Àâµµ
+//	ë ˆë“œ-ë¸”ë™ íŠ¸ë¦¬ êµ¬í˜„ : ì‚½ì…, ì‚­ì œ, ê²€ìƒ‰ O(logN) ì‹œê°„ë³µì¡ë„
 //*/
 
 class Image;
@@ -29,6 +29,13 @@ public:
 		int width, int height,
 		int maxFrameX, int maxFrameY,
 		bool isTransparent = FALSE, 
+		COLORREF transColor = FALSE);
+
+	Image* AddZoomedImage(string key, const wchar_t* filePath,
+		int width, int height,
+		int maxFrameX, int maxFrameY,
+		float zoom,
+		bool isTransparent = FALSE,
 		COLORREF transColor = FALSE);
 
 	void DeleteImage(string key);

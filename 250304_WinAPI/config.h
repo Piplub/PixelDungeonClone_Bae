@@ -49,8 +49,8 @@ extern POINT g_ptMouse;
 #define TILE_SIZE	16
 
 // 메인 그리기 공간 정보
-#define TILE_X	50
-#define TILE_Y	50
+#define TILE_X	40
+#define TILE_Y	40
 
 typedef struct tagTile
 {

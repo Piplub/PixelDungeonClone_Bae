@@ -108,6 +108,40 @@ HRESULT Image::Init(const wchar_t* filePath, int width, int height, int maxFrame
     return S_OK;   // S_OK, E_FAIL
 }
 
+HRESULT Image::InitWithExternalBitmap(HBITMAP bmp, HDC memDC, int width, int height,
+    int maxFrameX, int maxFrameY, bool isTransparent, COLORREF transColor)
+{
+    HDC hdc = GetDC(g_hWnd);
+
+    imageInfo = new IMAGE_INFO();
+    imageInfo->resID = 0;
+    imageInfo->hBitmap = bmp;
+    imageInfo->hMemDC = memDC;
+    imageInfo->hOldBit = (HBITMAP)SelectObject(imageInfo->hMemDC, bmp);
+
+    imageInfo->width = width;
+    imageInfo->height = height;
+    imageInfo->loadType = IMAGE_LOAD_TYPE::Empty;
+
+    imageInfo->maxFrameX = maxFrameX;
+    imageInfo->maxFrameY = maxFrameY;
+    imageInfo->frameWidth = width / maxFrameX;
+    imageInfo->frameHeight = height / maxFrameY;
+    imageInfo->currFrameX = imageInfo->currFrameY = 0;
+
+    imageInfo->hTempDC = CreateCompatibleDC(hdc);
+    imageInfo->hTempBit = CreateCompatibleBitmap(hdc, width, height);
+    imageInfo->hOldTemp = (HBITMAP)SelectObject(imageInfo->hTempDC, imageInfo->hTempBit);
+
+    ReleaseDC(g_hWnd, hdc);
+
+    this->isTransparent = isTransparent;
+    this->transColor = transColor;
+
+    return S_OK;
+}
+
+
 void Image::Render(HDC hdc, int destX, int destY)
 {
     if (isTransparent)

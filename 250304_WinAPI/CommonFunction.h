@@ -43,6 +43,11 @@ inline void RenderRect(HDC hdc, int x, int y, int width, int height)
 	Rectangle(hdc, x, y, x + width, y + height);
 }
 
+inline void RenderRect(HDC hdc, RECT rc)
+{
+	Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
+}
+
 // 가운데 기준
 inline void RenderRectAtCenter(HDC hdc, int centerX, int centerY, int width, int height)
 {
