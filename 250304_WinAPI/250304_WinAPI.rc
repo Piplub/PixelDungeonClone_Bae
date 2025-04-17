@@ -63,7 +63,7 @@ POPUP "도구"
 BEGIN
 MENUITEM "테스트\tCtrl+T", ID_TILE_TEST
 MENUITEM "그리드 켜기/끄기\tCtrl+G", ID_TILE_SHOWGRID
-MENUITEM "모두 지우기\tCtrl + A + E", ID_TILE_ERASE
+MENUITEM "모두 지우기", ID_TILE_ERASE
 END
 END
 
