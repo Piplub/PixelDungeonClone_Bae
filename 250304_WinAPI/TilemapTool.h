@@ -27,6 +27,13 @@ private:
 	RECT tile110rc;
 	RECT tile111rc;
 
+	RECT dragRc;
+	vector<POINT> specialTiles;
+	POINT dragStartP;
+	POINT dragNowP;
+
+	bool isDragging;
+
 	RECT rcMain;
 	RECT mainGrid[TILE_X * TILE_Y];
 

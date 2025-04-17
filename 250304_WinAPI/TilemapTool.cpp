@@ -65,6 +65,9 @@ HRESULT TilemapTool::Init()
 	hPen_forGrid = CreatePen(PS_SOLID, 1, RGB(0, 168, 107));
 	hPen_forSample = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
 
+	dragRc = { 0, 0, 1, 1 };
+
+
 	return S_OK;
 }
 
@@ -115,6 +118,55 @@ void TilemapTool::Update()
 			int tileX = (posX-200) / gridSize;
 			int tileY = (posY-30) / gridSize;
 			tileInfo[tileY * TILE_X + tileX].tileCode = selectedTileCode;
+		}
+
+		if (KeyManager::GetInstance()->IsOnceKeyDown(VK_RBUTTON)) {
+			isDragging = true;
+			dragStartP = g_ptMouse;
+		}
+
+		if (isDragging && KeyManager::GetInstance()->IsStayKeyDown(VK_RBUTTON)) {
+			dragNowP = g_ptMouse;
+
+			dragRc.left = min(dragStartP.x, dragNowP.x);
+			dragRc.right = max(dragStartP.x, dragNowP.x);
+			dragRc.top = min(dragStartP.y, dragNowP.y);
+			dragRc.bottom = max(dragStartP.y, dragNowP.y);
+		}
+
+		if (KeyManager::GetInstance()->IsOnceKeyUp(VK_RBUTTON)) {
+			if (KeyManager::GetInstance()->IsStayKeyDown(VK_LSHIFT)) {
+
+				for (int i = 0; i < TILE_Y; ++i) {
+					for (int j = 0; j < TILE_X; ++j) {
+						if (RectInRect(mainGrid[i * TILE_X + j], dragRc)) {
+							tileInfo[i * TILE_X + j].tileCode = 0b110;
+							specialTiles.push_back({ j, i });
+						}
+					}
+				}
+
+				POINT dir[8] = { {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1,1} };
+				for (auto& ind : specialTiles) {
+					for (int i = 0; i < 8; ++i) {
+						if (tileInfo[(ind.y + dir[i].y) * TILE_X + (ind.x + dir[i].x)].tileCode == 0b000) {
+							tileInfo[(ind.y + dir[i].y) * TILE_X + (ind.x + dir[i].x)].tileCode = 0b111;
+						}
+					}
+				}
+
+			}
+			else {
+				for (int i = 0; i < TILE_Y; ++i) {
+					for (int j = 0; j < TILE_X; ++j) {
+						if (RectInRect(mainGrid[i * TILE_X + j], dragRc)) {
+							tileInfo[i * TILE_X + j].tileCode = selectedTileCode;
+						}
+					}
+				}
+			}
+			
+			isDragging = false;
 		}
 	}
 
@@ -179,6 +231,11 @@ void TilemapTool::Render(HDC hdc)
 		RenderRect(hdc, tile111rc);
 		break;
 	}
+
+	if (isDragging) {
+		RenderRect(hdc, dragRc);
+	}
+
 	SelectObject(hdc, hOldPen);
 	SelectObject(hdc, hOldBrush);
 
