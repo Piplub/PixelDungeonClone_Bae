@@ -89,7 +89,7 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 		case ID_FILE_SAVE:
 			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
 			{
-				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->AutoSave();
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->Save();
 			}
 			break;
 		case ID_FILE_SAVEAS:
@@ -108,6 +108,12 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
 			{
 				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->SetGridLine();
+			}
+			break;
+		case ID_TILE_ERASE:
+			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->Erase();
 			}
 			break;
 			// 배틀씬 메뉴

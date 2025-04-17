@@ -34,7 +34,9 @@ HRESULT TilemapTool::Init()
 		}
 	}
 
-	Load();
+	if (wcslen(GameObject::nowFilePath) > 0) {
+		Load();
+	}
 
 	/// 메인 타일 영역
 	// whole box
@@ -57,10 +59,11 @@ HRESULT TilemapTool::Init()
 	//saveButton->SetFunction(&TilemapTool::Save, this);
 	//saveButton->SetFunction(std::bind(&TilemapTool::Save, this));
 	saveButton->SetFunction([this]() {
-		this->SaveAs();
+		this->Save();
 		});
 
 	hPen_forGrid = CreatePen(PS_SOLID, 1, RGB(0, 168, 107));
+	hPen_forSample = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
 
 	return S_OK;
 }
@@ -75,6 +78,7 @@ void TilemapTool::Release()
 	}
 
 	DeleteObject(hPen_forGrid);
+	DeleteObject(hPen_forSample);
 }
 
 void TilemapTool::Update()
@@ -148,6 +152,7 @@ void TilemapTool::Render(HDC hdc)
 		SelectObject(hdc, hOldBrush);
 	}
 	
+	
 
 	// 샘플 타일 영역
 	zoomedSampleTile[4]->FrameRender(hdc, tile000rc.left, tile000rc.top,
@@ -159,21 +164,65 @@ void TilemapTool::Render(HDC hdc)
 	zoomedSampleTile[4]->FrameRender(hdc, tile111rc.left, tile111rc.top,
 		(int)FrameAdapter(0b111).x, (int)FrameAdapter(0b111).y, false, false);
 
+	HPEN hOldPen = (HPEN)SelectObject(hdc, hPen_forSample);
+
+	HBRUSH hNullBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+	HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hNullBrush);
+	switch (selectedTileCode) {
+	case 0b000:
+		RenderRect(hdc, tile000rc);
+		break;
+	case 0b110:
+		RenderRect(hdc, tile110rc);
+		break;
+	case 0b111:
+		RenderRect(hdc, tile111rc);
+		break;
+	}
+	SelectObject(hdc, hOldPen);
+	SelectObject(hdc, hOldBrush);
+
 	// 선택된 타일
-	zoomedSampleTile[4]->FrameRender(hdc,
+	/*zoomedSampleTile[4]->FrameRender(hdc,
 		975, 300,
 		(int)FrameAdapter(selectedTileCode).x,
 		(int)FrameAdapter(selectedTileCode).y,
-		false, false);
+		false, false);*/
 
 	if (saveButton) saveButton->Render(hdc);
 }
 
 void TilemapTool::AutoSave()
 {
+	if (GameObject::nowFilePath[0] != L'\0' && wcscmp(GameObject::nowFilePath, L"TestMapData.dat") != 0)
+	{
+		return;
+	}
 	// 파일 저장
 	HANDLE hFile = CreateFile(
 		L"TestMapData.dat", GENERIC_WRITE, 0, NULL,
+		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		MessageBox(g_hWnd, TEXT("파일 생성 실패"), TEXT("경고"), MB_OK);
+		return;
+	}
+	DWORD dwByte = 0;
+	WriteFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL);
+	wcscpy_s(GameObject::nowFilePath, MAX_PATH, L"TestMapData.dat");
+	CloseHandle(hFile);
+}
+
+void TilemapTool::Save()
+{
+	if (GameObject::nowFilePath[0] == L'\0' || wcscmp(GameObject::nowFilePath, L"TestMapData.dat") == 0)
+	{
+		SaveAs();
+		return;
+	}
+	// save to exist file
+	HANDLE hFile = CreateFile(
+		nowFilePath, GENERIC_WRITE, 0, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
@@ -189,20 +238,20 @@ void TilemapTool::AutoSave()
 
 void TilemapTool::SaveAs()
 {
-	// 파일 저장 다이얼로그 설정
+	TCHAR prevDir[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, prevDir);
 	OPENFILENAME ofn;
-	WCHAR szFile[MAX_PATH] = L"TileMapData.dat"; // 기본 파일 이름
+	WCHAR szFile[MAX_PATH] = L"TileMapData.dat"; 
 
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = g_hWnd; // 너의 윈도우 핸들
+	ofn.hwndOwner = g_hWnd; 
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrFilter = L"Tilemap 데이터 파일 (*.dat)\0*.dat\0모든 파일 (*.*)\0*.*\0";
 	ofn.nFilterIndex = 1;
-	ofn.Flags = OFN_OVERWRITEPROMPT; // 같은 이름이 있을 경우 덮어쓸지 묻기
+	ofn.Flags = OFN_OVERWRITEPROMPT; 
 
-	// 사용자가 경로를 선택했다면
 	if (GetSaveFileName(&ofn))
 	{
 		HANDLE hFile = CreateFile(
@@ -217,24 +266,29 @@ void TilemapTool::SaveAs()
 
 		DWORD dwByte = 0;
 		WriteFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL);
-		CloseHandle(hFile);
+		wcscpy_s(GameObject::nowFilePath, MAX_PATH, ofn.lpstrFile);
 
+		CloseHandle(hFile);
+		SetCurrentDirectory(prevDir);
 		MessageBox(g_hWnd, TEXT("저장 완료"), TEXT("알림"), MB_OK);
 	}
 }
 
 
 void TilemapTool::Load()
-{	
-	// 파일 로드
+{
+	LPCWSTR pathToLoad = (GameObject::nowFilePath[0] != L'\0') ? GameObject::nowFilePath : L"TestMapData.dat";
+
 	HANDLE hFile = CreateFile(
-		L"TestMapData.dat", GENERIC_READ, 0, NULL,
+		pathToLoad, GENERIC_READ, 0, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		MessageBox(g_hWnd, TEXT("파일 열기 실패"), TEXT("경고"), MB_OK);
 		return;
 	}
+
 	DWORD dwByte = 0;
 	if (!ReadFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL))
 	{
@@ -243,10 +297,15 @@ void TilemapTool::Load()
 	CloseHandle(hFile);
 }
 
-#include <commdlg.h>  // GetOpenFileName을 사용하려면 필요
+
+#include <shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
+
 
 void TilemapTool::LoadAs()
 {
+	TCHAR prevDir[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, prevDir);
 	// 파일 열기 다이얼로그 설정
 	OPENFILENAME ofn;
 	WCHAR szFile[MAX_PATH] = L""; // 초기 파일 이름은 없음
@@ -278,10 +337,29 @@ void TilemapTool::LoadAs()
 		{
 			MessageBox(g_hWnd, TEXT("파일 읽기 실패"), TEXT("경고"), MB_OK);
 		}
+		wcscpy_s(GameObject::nowFilePath, MAX_PATH, ofn.lpstrFile);
 		CloseHandle(hFile);
-
 		//MessageBox(g_hWnd, TEXT("불러오기 완료"), TEXT("알림"), MB_OK);
 	}
+	TCHAR loadedPath[MAX_PATH];
+	SetCurrentDirectory(prevDir);
+}
+
+void TilemapTool::Erase()
+{
+	for (int i = 0; i < TILE_Y; ++i)
+	{
+		for (int j = 0; j < TILE_X; ++j)
+		{
+			tileInfo[i * TILE_X + j].tileCode = 0b000;
+			tileInfo[i * TILE_X + j].indX = j;
+			tileInfo[i * TILE_X + j].indY = i;
+		}
+	}
+}
+
+void TilemapTool::Paint()
+{
 }
 
 void TilemapTool::Test()

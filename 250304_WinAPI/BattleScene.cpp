@@ -5,6 +5,9 @@
 
 HRESULT BattleScene::Init()
 {
+	TCHAR buf[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, buf);
+	MessageBox(g_hWnd, buf, TEXT("현재 디렉토리"), MB_OK);
 	SetClientRect(g_hWnd, WINSIZE_X, TILEMAPTOOL_Y);
 
 	sampleTile = ImageManager::GetInstance()->AddImage(
@@ -65,7 +68,7 @@ void BattleScene::Load()
 {
 	// 파일 로드
 	HANDLE hFile = CreateFile(
-		L"TestMapData.dat", GENERIC_READ, 0, NULL,
+		nowFilePath, GENERIC_READ, 0, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{

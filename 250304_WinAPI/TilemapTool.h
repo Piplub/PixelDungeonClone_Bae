@@ -15,6 +15,7 @@ private:
 
 	const int gridSize{ 16 };
 	HPEN hPen_forGrid;
+	HPEN hPen_forSample;
 	
 	//POINT selectedTile;
 
@@ -38,9 +39,13 @@ public:
 	virtual void Render(HDC hdc) override;
 
 	void AutoSave();
+	void Save();
 	void SaveAs();
 	void Load();
 	void LoadAs();
+
+	void Erase();
+	void Paint();
 
 	inline void SetGridLine() { gridLineOn = !gridLineOn; }
 	void Test();
