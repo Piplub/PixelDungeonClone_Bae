@@ -38,6 +38,7 @@ public:
 	void AutoSave();
 	void SaveAs();
 	void Load();
+	void LoadAs();
 
 	TilemapTool() {};
 	virtual ~TilemapTool() {};

@@ -239,3 +239,42 @@ void TilemapTool::Load()
 	}
 	CloseHandle(hFile);
 }
+
+#include <commdlg.h>  // GetOpenFileName을 사용하려면 필요
+
+void TilemapTool::LoadAs()
+{
+	// 파일 열기 다이얼로그 설정
+	OPENFILENAME ofn;
+	WCHAR szFile[MAX_PATH] = L""; // 초기 파일 이름은 없음
+
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = g_hWnd; // 네 윈도우 핸들
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrFilter = L"Tilemap 데이터 파일 (*.dat)\0*.dat\0모든 파일 (*.*)\0*.*\0";
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST; // 존재하는 파일만 선택 가능
+
+	// 사용자가 파일을 선택했을 경우
+	if (GetOpenFileName(&ofn))
+	{
+		HANDLE hFile = CreateFile(
+			ofn.lpstrFile, GENERIC_READ, 0, NULL,
+			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			MessageBox(g_hWnd, TEXT("파일 열기 실패"), TEXT("경고"), MB_OK);
+			return;
+		}
+
+		DWORD dwByte = 0;
+		ReadFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL);
+		CloseHandle(hFile);
+
+		MessageBox(g_hWnd, TEXT("불러오기 완료"), TEXT("알림"), MB_OK);
+	}
+}
+

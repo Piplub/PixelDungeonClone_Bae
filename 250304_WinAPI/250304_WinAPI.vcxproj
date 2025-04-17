@@ -155,12 +155,16 @@
     <ClInclude Include="KeyManager.h" />
     <ClInclude Include="LoadingScene.h" />
     <ClInclude Include="MainGame.h" />
+    <ClInclude Include="resource4.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="TilemapTool.h" />
     <ClInclude Include="Tiles.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TimerManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="250304_WinAPI.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -9,6 +9,7 @@
 #include <bitset>
 #include <map>
 #include <vector>
+#include "resource4.h"
 
 using namespace std;
 
