@@ -1,4 +1,4 @@
-#include "MainGame.h"
+ï»¿#include "MainGame.h"
 #include "CommonFunction.h"
 #include "Image.h"
 #include "Timer.h"
@@ -13,11 +13,11 @@ HRESULT MainGame::Init()
 	KeyManager::GetInstance()->Init();
 	SceneManager::GetInstance()->Init();
 
-	SceneManager::GetInstance()->AddScene("A*¾Ë°í¸®Áò", new AstarScene());
-	SceneManager::GetInstance()->AddScene("ÀüÅõ¾À_1", new BattleScene());
-	SceneManager::GetInstance()->AddScene("Å¸ÀÏ¸ÊÅø", new TilemapTool());
-	SceneManager::GetInstance()->AddLoadingScene("·Îµù_1", new LoadingScene());
-	SceneManager::GetInstance()->ChangeScene("Å¸ÀÏ¸ÊÅø");
+	SceneManager::GetInstance()->AddScene("A*ì•Œê³ ë¦¬ì¦˜", new AstarScene());
+	SceneManager::GetInstance()->AddScene("ì „íˆ¬ì”¬_1", new BattleScene());
+	SceneManager::GetInstance()->AddScene("íƒ€ì¼ë§µíˆ´", new TilemapTool());
+	SceneManager::GetInstance()->AddLoadingScene("ë¡œë”©_1", new LoadingScene());
+	SceneManager::GetInstance()->ChangeScene("íƒ€ì¼ë§µíˆ´");
 
 	hdc = GetDC(g_hWnd);
 
@@ -25,7 +25,7 @@ HRESULT MainGame::Init()
 	if (FAILED(backBuffer->Init(TILEMAPTOOL_X, TILEMAPTOOL_Y)))
 	{
 		MessageBox(g_hWnd, 
-			TEXT("¹é¹öÆÛ »ı¼º ½ÇÆĞ"), TEXT("°æ°í"), MB_OK);
+			TEXT("ë°±ë²„í¼ ìƒì„± ì‹¤íŒ¨"), TEXT("ê²½ê³ "), MB_OK);
 		return E_FAIL;
 	}
 
@@ -56,7 +56,7 @@ void MainGame::Update()
 
 void MainGame::Render()
 {
-	// ¹é¹öÆÛ¿¡ ¸ÕÀú º¹»ç
+	// ë°±ë²„í¼ì— ë¨¼ì € ë³µì‚¬
 	HDC hBackBufferDC = backBuffer->GetMemDC();
 
 	SceneManager::GetInstance()->Render(hBackBufferDC);
@@ -65,7 +65,7 @@ void MainGame::Render()
 	wsprintf(szText, TEXT("Mouse X : %d, Y : %d"), g_ptMouse.x, g_ptMouse.y);
 	TextOut(hBackBufferDC, 20, 60, szText, wcslen(szText));
 
-	// ¹é¹öÆÛ¿¡ ÀÖ´Â ³»¿ëÀ» ¸ŞÀÎ hdc¿¡ º¹»ç
+	// ë°±ë²„í¼ì— ìˆëŠ” ë‚´ìš©ì„ ë©”ì¸ hdcì— ë³µì‚¬
 	backBuffer->Render(hdc);
 }
 
@@ -73,14 +73,58 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 {
 	switch (iMessage)
 	{
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+			// íƒ€ì¼ë§µíˆ´ ë©”ë‰´
+		case ID_FILE_NEW:
+			//
+			break;
+		case ID_FILE_OPEN:
+			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->LoadAs();
+			}
+			break;
+		case ID_FILE_SAVE:
+			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->AutoSave();
+			}
+			break;
+		case ID_FILE_SAVEAS:
+			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->SaveAs();
+			}
+			break;
+		case ID_TILE_SHOWGRID:
+			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->SetGridLine();
+			}
+			break;
+			// ë°°í‹€ì”¬ ë©”ë‰´
+		case ID_BATTLE_RESTART:
+			//
+			break;
+		case ID_BATTLE_EXIT:
+			//PostQuitMessage(0); // í”„ë¡œê·¸ë¨ ì¢…ë£Œ
+			break;
+		case ID_BATTLE_SOUND:
+			//
+			break;
+		}
+		break;
+	
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
 		case 'a': case 'A':
-			SceneManager::GetInstance()->ChangeScene("ÀüÅõ¾À_1");
+			SceneManager::GetInstance()->ChangeScene("ì „íˆ¬ì”¬_1");
 			break;
 		case 'd': case 'D':
-			SceneManager::GetInstance()->ChangeScene("Å¸ÀÏ¸ÊÅø");
+			SceneManager::GetInstance()->ChangeScene("íƒ€ì¼ë§µíˆ´");
 			break;
 		}
 		break;

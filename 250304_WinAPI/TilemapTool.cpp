@@ -136,15 +136,18 @@ void TilemapTool::Render(HDC hdc)
 			false, false);
 	}
 
-	HPEN hOldPen = (HPEN)SelectObject(hdc, hPen_forGrid);
+	if (gridLineOn) {
+		HPEN hOldPen = (HPEN)SelectObject(hdc, hPen_forGrid);
 
-	HBRUSH hNullBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
-	HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hNullBrush);
-	for (auto& g : mainGrid) {
-		RenderRect(hdc, g);
+		HBRUSH hNullBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+		HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hNullBrush);
+		for (auto& g : mainGrid) {
+			RenderRect(hdc, g);
+		}
+		SelectObject(hdc, hOldPen);
+		SelectObject(hdc, hOldBrush);
 	}
-	SelectObject(hdc, hOldPen);
-	SelectObject(hdc, hOldBrush);
+	
 
 	// 샘플 타일 영역
 	zoomedSampleTile[4]->FrameRender(hdc, tile000rc.left, tile000rc.top,
@@ -271,10 +274,13 @@ void TilemapTool::LoadAs()
 		}
 
 		DWORD dwByte = 0;
-		ReadFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL);
+		if (!ReadFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL))
+		{
+			MessageBox(g_hWnd, TEXT("파일 읽기 실패"), TEXT("경고"), MB_OK);
+		}
 		CloseHandle(hFile);
 
-		MessageBox(g_hWnd, TEXT("불러오기 완료"), TEXT("알림"), MB_OK);
+		//MessageBox(g_hWnd, TEXT("불러오기 완료"), TEXT("알림"), MB_OK);
 	}
 }
 

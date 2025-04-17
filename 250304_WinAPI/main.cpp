@@ -80,10 +80,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		WS_OVERLAPPEDWINDOW, 50, 50, width, height,
 		NULL, NULL, g_hInstance, NULL);
 
-	HMENU hMenu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_TILEMAPTOOLMENU));
-	SetMenu(g_hWnd, hMenu);
-	DrawMenuBar(g_hWnd);
-
 	ShowWindow(g_hWnd, nCmdShow);
 
 	TimerManager::GetInstance()->Init();

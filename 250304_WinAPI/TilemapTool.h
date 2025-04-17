@@ -29,6 +29,8 @@ private:
 	RECT rcMain;
 	RECT mainGrid[TILE_X * TILE_Y];
 
+	bool gridLineOn{ false };
+
 public:
 	virtual HRESULT Init() override;
 	virtual void Release() override;
@@ -39,6 +41,8 @@ public:
 	void SaveAs();
 	void Load();
 	void LoadAs();
+
+	inline void SetGridLine() { gridLineOn = !gridLineOn; }
 
 	TilemapTool() {};
 	virtual ~TilemapTool() {};
