@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameObject.h"
 
 class Image;
@@ -15,6 +15,8 @@ public:
 	virtual void Render(HDC hdc) override;
 
 	void Load();
+
+	void Exit();
 
 	BattleScene() {};
 	virtual ~BattleScene() {};

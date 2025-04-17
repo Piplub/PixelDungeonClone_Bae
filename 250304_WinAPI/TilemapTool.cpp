@@ -284,3 +284,8 @@ void TilemapTool::LoadAs()
 	}
 }
 
+void TilemapTool::Test()
+{
+	SceneManager::GetInstance()->ChangeScene("전투씬_1");
+}
+

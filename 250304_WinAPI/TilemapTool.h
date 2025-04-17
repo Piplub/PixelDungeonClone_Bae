@@ -43,6 +43,7 @@ public:
 	void LoadAs();
 
 	inline void SetGridLine() { gridLineOn = !gridLineOn; }
+	void Test();
 
 	TilemapTool() {};
 	virtual ~TilemapTool() {};

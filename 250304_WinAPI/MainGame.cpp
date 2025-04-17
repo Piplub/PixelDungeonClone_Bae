@@ -98,6 +98,12 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->SaveAs();
 			}
 			break;
+		case ID_TILE_TEST:
+			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene())->Test();
+			}
+			break;
 		case ID_TILE_SHOWGRID:
 			if (dynamic_cast<TilemapTool*>(SceneManager::GetInstance()->GetCurrentScene()))
 			{
@@ -106,10 +112,16 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 			break;
 			// 배틀씬 메뉴
 		case ID_BATTLE_RESTART:
-			//
+			if (dynamic_cast<BattleScene*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<BattleScene*>(SceneManager::GetInstance()->GetCurrentScene())->Init();
+			}
 			break;
 		case ID_BATTLE_EXIT:
-			//PostQuitMessage(0); // 프로그램 종료
+			if (dynamic_cast<BattleScene*>(SceneManager::GetInstance()->GetCurrentScene()))
+			{
+				static_cast<BattleScene*>(SceneManager::GetInstance()->GetCurrentScene())->Exit();
+			}
 			break;
 		case ID_BATTLE_SOUND:
 			//
@@ -117,7 +129,7 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 		}
 		break;
 	
-	case WM_KEYDOWN:
+	/*case WM_KEYDOWN:
 		switch (wParam)
 		{
 		case 'a': case 'A':
@@ -127,7 +139,7 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 			SceneManager::GetInstance()->ChangeScene("타일맵툴");
 			break;
 		}
-		break;
+		break;*/
 	case WM_LBUTTONDOWN:
 		g_ptMouse.x = LOWORD(lParam);
 		g_ptMouse.y = HIWORD(lParam);

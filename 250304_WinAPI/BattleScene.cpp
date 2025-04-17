@@ -79,3 +79,8 @@ void BattleScene::Load()
 	}
 	CloseHandle(hFile);
 }
+
+void BattleScene::Exit()
+{
+	SceneManager::GetInstance()->ChangeScene("타일맵툴");
+}
