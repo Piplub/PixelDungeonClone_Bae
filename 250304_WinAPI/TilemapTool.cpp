@@ -34,7 +34,7 @@ HRESULT TilemapTool::Init()
 		}
 	}
 
-	//Load();
+	Load();
 
 	/// 메인 타일 영역
 	// whole box
@@ -57,7 +57,7 @@ HRESULT TilemapTool::Init()
 	//saveButton->SetFunction(&TilemapTool::Save, this);
 	//saveButton->SetFunction(std::bind(&TilemapTool::Save, this));
 	saveButton->SetFunction([this]() {
-		this->Save();
+		this->SaveAs();
 		});
 
 	hPen_forGrid = CreatePen(PS_SOLID, 1, RGB(0, 168, 107));
@@ -115,6 +115,10 @@ void TilemapTool::Update()
 	}
 
 	if (saveButton)	saveButton->Update();
+
+	if (KeyManager::GetInstance()->IsOnceKeyUp(VK_LBUTTON)) {
+		AutoSave();
+	}
 }
 
 void TilemapTool::Render(HDC hdc)
@@ -162,11 +166,11 @@ void TilemapTool::Render(HDC hdc)
 	if (saveButton) saveButton->Render(hdc);
 }
 
-void TilemapTool::Save()
+void TilemapTool::AutoSave()
 {
 	// 파일 저장
 	HANDLE hFile = CreateFile(
-		L"TileMapData.dat", GENERIC_WRITE, 0, NULL,
+		L"TestMapData.dat", GENERIC_WRITE, 0, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
@@ -178,11 +182,50 @@ void TilemapTool::Save()
 	CloseHandle(hFile);
 }
 
+#include <commdlg.h>  // GetSaveFileName 사용을 위한 헤더
+
+void TilemapTool::SaveAs()
+{
+	// 파일 저장 다이얼로그 설정
+	OPENFILENAME ofn;
+	WCHAR szFile[MAX_PATH] = L"TileMapData.dat"; // 기본 파일 이름
+
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = g_hWnd; // 너의 윈도우 핸들
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrFilter = L"Tilemap 데이터 파일 (*.dat)\0*.dat\0모든 파일 (*.*)\0*.*\0";
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_OVERWRITEPROMPT; // 같은 이름이 있을 경우 덮어쓸지 묻기
+
+	// 사용자가 경로를 선택했다면
+	if (GetSaveFileName(&ofn))
+	{
+		HANDLE hFile = CreateFile(
+			ofn.lpstrFile, GENERIC_WRITE, 0, NULL,
+			CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			MessageBox(g_hWnd, TEXT("파일 생성 실패"), TEXT("경고"), MB_OK);
+			return;
+		}
+
+		DWORD dwByte = 0;
+		WriteFile(hFile, tileInfo, sizeof(tileInfo), &dwByte, NULL);
+		CloseHandle(hFile);
+
+		MessageBox(g_hWnd, TEXT("저장 완료"), TEXT("알림"), MB_OK);
+	}
+}
+
+
 void TilemapTool::Load()
 {	
 	// 파일 로드
 	HANDLE hFile = CreateFile(
-		L"TileMapData.dat", GENERIC_READ, 0, NULL,
+		L"TestMapData.dat", GENERIC_READ, 0, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{

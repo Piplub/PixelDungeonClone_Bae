@@ -65,7 +65,7 @@ void BattleScene::Load()
 {
 	// 파일 로드
 	HANDLE hFile = CreateFile(
-		L"TileMapData.dat", GENERIC_READ, 0, NULL,
+		L"TestMapData.dat", GENERIC_READ, 0, NULL,
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{

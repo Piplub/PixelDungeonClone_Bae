@@ -35,7 +35,8 @@ public:
 	virtual void Update() override;
 	virtual void Render(HDC hdc) override;
 
-	void Save();
+	void AutoSave();
+	void SaveAs();
 	void Load();
 
 	TilemapTool() {};
