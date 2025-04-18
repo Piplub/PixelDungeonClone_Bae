@@ -155,6 +155,8 @@ void TilemapTool::Update()
 					}
 				}
 
+				specialTiles.clear();
+
 			}
 			else {
 				for (int i = 0; i < TILE_Y; ++i) {
