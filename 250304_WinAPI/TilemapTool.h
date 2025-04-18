@@ -54,6 +54,8 @@ public:
 	void Erase();
 	void Paint();
 
+	void MakeARoom();
+
 	inline void SetGridLine() { gridLineOn = !gridLineOn; }
 	void Test();
 

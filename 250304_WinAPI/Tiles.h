@@ -18,6 +18,10 @@ protected:
 	0b001: blocked(wall)
 	*/
 
+	bool isEmpty;
+	bool shouldRender;
+	bool blocked;
+
 	int frameX{ 0 };
 	int frameY{ 0 };
 
@@ -27,7 +31,13 @@ public:
 	Tile(int x, int y, int code);
 	virtual ~Tile() {};
 
+	void ConvertToState();
+	void ConvertToCode();
 	void Render(HDC hdc);
+
+	inline bool GetIsEmpty() { return isEmpty; }
+	inline bool GetShouldRender() { return shouldRender; }
+	inline bool GetBlocked() { return blocked; }
 };
 
 inline POINT FrameAdapter(int tileCode)

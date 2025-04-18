@@ -139,3 +139,15 @@ inline void SetClientRect(HWND hWnd, int width, int height)
 		rc.bottom - rc.top, SWP_NOMOVE | SWP_NOZORDER);
 }
 
+inline void SetBit(int& val, int bitIndex) {
+	val |= (1 << bitIndex);
+}
+
+inline void ClearBit(int& val, int bitIndex) {
+	val &= ~(1 << bitIndex);
+}
+
+inline void ToggleBit(int& val, int bitIndex) {
+	val ^= (1 << bitIndex);
+}
+

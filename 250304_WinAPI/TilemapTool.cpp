@@ -137,25 +137,7 @@ void TilemapTool::Update()
 		if (KeyManager::GetInstance()->IsOnceKeyUp(VK_RBUTTON)) {
 			if (KeyManager::GetInstance()->IsStayKeyDown(VK_LSHIFT)) {
 
-				for (int i = 0; i < TILE_Y; ++i) {
-					for (int j = 0; j < TILE_X; ++j) {
-						if (RectInRect(mainGrid[i * TILE_X + j], dragRc)) {
-							tileInfo[i * TILE_X + j].tileCode = 0b110;
-							specialTiles.push_back({ j, i });
-						}
-					}
-				}
-
-				POINT dir[8] = { {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1,1} };
-				for (auto& ind : specialTiles) {
-					for (int i = 0; i < 8; ++i) {
-						if (tileInfo[(ind.y + dir[i].y) * TILE_X + (ind.x + dir[i].x)].tileCode == 0b000) {
-							tileInfo[(ind.y + dir[i].y) * TILE_X + (ind.x + dir[i].x)].tileCode = 0b111;
-						}
-					}
-				}
-
-				specialTiles.clear();
+				MakeARoom();
 
 			}
 			else {
@@ -419,6 +401,29 @@ void TilemapTool::Erase()
 
 void TilemapTool::Paint()
 {
+}
+
+void TilemapTool::MakeARoom()
+{
+	for (int i = 0; i < TILE_Y; ++i) {
+		for (int j = 0; j < TILE_X; ++j) {
+			if (RectInRect(mainGrid[i * TILE_X + j], dragRc)) {
+				tileInfo[i * TILE_X + j].tileCode = 0b110;
+				specialTiles.push_back({ j, i });
+			}
+		}
+	}
+
+	POINT dir[8] = { {-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {1, 0}, {-1, 1}, {0, 1}, {1,1} };
+	for (auto& ind : specialTiles) {
+		for (int i = 0; i < 8; ++i) {
+			if (tileInfo[(ind.y + dir[i].y) * TILE_X + (ind.x + dir[i].x)].tileCode == 0b000) {
+				tileInfo[(ind.y + dir[i].y) * TILE_X + (ind.x + dir[i].x)].tileCode = 0b111;
+			}
+		}
+	}
+
+	specialTiles.clear();
 }
 
 void TilemapTool::Test()
