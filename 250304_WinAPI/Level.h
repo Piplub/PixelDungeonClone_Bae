@@ -13,7 +13,7 @@ private:
 	Map map[TILE_Y * TILE_X];
 	RECT mapRc;
 	RECT tempTile[TILE_Y * TILE_X]; //타일 이미지 넣기 전 임시 이미지 그리기용 배열
-	int tempTileSize; // 20*20 규격의 맵에 알맞은 임시 타일 사이즈
+	int tempTileSize; // 20*20 규격의 맵에 알맞은 임시 타일 사이즈: 30
 
 	HBRUSH BlackBrush;
 	HBRUSH GreyBrush;

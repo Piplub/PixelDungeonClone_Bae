@@ -12,7 +12,7 @@ void Level::Init()
 
 	for (int i = 0; i < TILE_Y; ++i) {
 		for (int j = 0; j < TILE_X; ++j) {
-			tempTile[20 * i + j] = 
+			tempTile[TILE_X * i + j] = 
 			{	240+j*tempTileSize, 
 				60+i*tempTileSize,
 				240 + (j+1) * tempTileSize, 
