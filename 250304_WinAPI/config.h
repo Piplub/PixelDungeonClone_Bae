@@ -120,7 +120,7 @@ extern POINT g_ptMouse;
 // 640 * 288
 #define SAMPLE_TILE_X	20
 #define SAMPLE_TILE_Y	9
-#define TILE_SIZE	90
+#define TILE_SIZE	96
 
 // 메인 그리기 공간 정보
 #define TILE_X	32

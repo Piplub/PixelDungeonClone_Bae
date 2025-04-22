@@ -98,8 +98,11 @@ public:
 	Map* GetMap(int x, int y) { return &map[(y - GRID_POS_OFFSET.y - TILE_SIZE / 2) / TILE_SIZE * TILE_X + (x - GRID_POS_OFFSET.x - TILE_SIZE / 2) / TILE_SIZE]; }
 	Entity* GetActorAt(FPOINT pos);
 
-	FPOINT GetPosByGridIndex(int idx, int idy) const { return {GRID_POS_OFFSET.x + (idx * 2 + 1) / 2.f * TILE_SIZE, GRID_POS_OFFSET.y + (idy * 2 + 1) / 2.f * TILE_SIZE }; }
-	
+	//FPOINT GetPosByGridIndex(int idx, int idy) const { return {GRID_POS_OFFSET.x + (idx * 2 + 1) / 2.f * TILE_SIZE, GRID_POS_OFFSET.y + (idy * 2 + 1) / 2.f * TILE_SIZE }; }
+	FPOINT GetPosByGridIndex(int idx, int idy) const { 
+		return { GRID_POS_OFFSET.x + (idx * TILE_SIZE) + TILE_SIZE / 2.0f,
+				 GRID_POS_OFFSET.y + (idy * TILE_SIZE) + TILE_SIZE / 2.0f };
+	}
 	void FileLoad();
 
 	void GenerateMap(int width, int height);

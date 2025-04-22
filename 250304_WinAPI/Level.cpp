@@ -211,14 +211,14 @@ void Level::Render(HDC hdc)
 
             bool isVisible = map[TILE_X * i + j].visible;
             int tileType = map[TILE_X * i + j].type;
-            int tileX = camera->ConvertToRendererX(tempTile[TILE_X * i + j].left);
-            int tileY = camera->ConvertToRendererY(tempTile[TILE_X * i + j].top);
+            int tileX = camera->ConvertToRendererX(tempTile[TILE_X * i + j].left + TILE_SIZE / 2);
+            int tileY = camera->ConvertToRendererY(tempTile[TILE_X * i + j].top + TILE_SIZE / 2);
 
             // Get the current frame coordinates for this tile type
             POINT frame = GetCurrentFrame(tileType);
 
             // Render the tile using the frame coordinates
-            sampleTile->RenderFrameScale(tileX, tileY, camera->GetZoomScale() * (isVisible ? 2.f : 1.f),
+            sampleTile->Middle_RenderFrameScale(tileX, tileY, camera->GetZoomScale() * (isVisible ? 2.f : 1.f),
                                                 camera->GetZoomScale() * (isVisible ? 2.f : 1.f), frame.x, frame.y);
 
             // switch (map[TILE_X * i + j].type) {
