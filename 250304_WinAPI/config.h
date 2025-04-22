@@ -1,6 +1,4 @@
-﻿// config.h
-
-#pragma once
+﻿#pragma once
 #pragma comment(lib, "Winmm.lib")
 
 #include <Windows.h>
@@ -9,7 +7,9 @@
 #include <bitset>
 #include <map>
 #include <vector>
-#include <algorithm>
+#include <random>
+#include <queue>
+#include <functional>
 
 using namespace std;
 
@@ -20,7 +20,7 @@ using namespace std;
 #include "SceneManager.h"
 
 /*
-	컴파일러에서 해당 코드를 뒤에 정의된 코드로 변경한다. 
+	컴파일러에서 해당 코드를 뒤에 정의된 코드로 변경한다.
 */
 #define WINSIZE_X	1080
 #define WINSIZE_Y	720
@@ -35,13 +35,16 @@ typedef struct tagFPOINT
 	float x;
 	float y;
 
+	tagFPOINT operator+(const tagFPOINT& other) {
+		return { x + other.x , y + other.y };
+	}
 	tagFPOINT operator-(const tagFPOINT& other) {
 		return { x - other.x , y - other.y };
 	}
 	void operator=(const tagFPOINT& other) {
 		x = other.x;
 		y = other.y;
-	}	
+	}
 	void operator+=(const tagFPOINT& other) {
 		x += other.x;
 		y += other.y;
@@ -55,6 +58,20 @@ typedef struct tagFPOINT
 	}
 	bool operator!=(const tagFPOINT& other) {
 		return x != other.x || y != other.y;
+	}
+	bool operator<(const tagFPOINT& other) const
+	{
+		if (x != other.x)
+			return x < other.x;
+
+		return y < other.y;
+	}
+	bool operator>(const tagFPOINT& other) const
+	{
+		if (x != other.x)
+			return x > other.x;
+
+		return y > other.y;
 	}
 
 	float LengthSquared()
@@ -119,12 +136,19 @@ typedef enum class TileType {
 
 
 struct Map {
-	int frameX;
-	int frameY;
 	TT type;
+	RECT rc;
+	FPOINT center;
 
 	bool CanGo() const
 	{
 		return type == TT::FLOOR || type == TT::NONE;
 	}
+};
+
+struct TileData {
+	int frameX;
+	int frameY;
+
+	TT type;
 };

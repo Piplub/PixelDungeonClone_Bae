@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CombatSyetem.cpp" />
     <ClCompile Include="D2DImage.cpp" />
     <ClCompile Include="D2DImageManager.cpp" />
     <ClCompile Include="Dungeon.cpp">
@@ -146,6 +147,7 @@
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="MouseManager.cpp" />
     <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="PathFinder.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="TilemapTool.cpp" />
@@ -159,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CombatSyetem.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="D2DImage.h" />
@@ -174,6 +177,7 @@
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="MouseManager.h" />
     <ClInclude Include="Monster.h" />
+    <ClInclude Include="PathFinder.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Singleton.h" />

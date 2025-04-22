@@ -23,6 +23,8 @@
     <ClCompile Include="TimerManager.cpp" />
     <ClCompile Include="TurnManager.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="PathFinder.cpp" />
+    <ClCompile Include="CombatSyetem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
@@ -48,5 +50,7 @@
     <ClInclude Include="TimerManager.h" />
     <ClInclude Include="TurnManager.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="PathFinder.h" />
+    <ClInclude Include="CombatSyetem.h" />
   </ItemGroup>
 </Project>

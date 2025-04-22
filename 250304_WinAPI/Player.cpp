@@ -4,12 +4,30 @@
 #include "KeyManager.h"
 #include "Level.h"
 #include "TimerManager.h"
+#include "PathFinder.h"
+#include "CombatSyetem.h"
 
-Player::Player(FPOINT pos, float speed)
+Player::Player(FPOINT pos, float speed, int hp, int attDmg, int defense)
 {
     position = pos;
     this->speed = speed;
+    this->hp = hp;
+    this->maxHp = hp;
+    this->attackDmg = attDmg;
+    this->defense = defense;
     isMoving = false;
+    isActive = true;
+
+    type = EntityType::PLAYER;
+    curState = EntityState::IDLE;
+
+    // 에너지 test
+    actionCost = 10.f;
+    energyPerTurn = 10.0f;
+
+    //길찾기
+    finder = new PathFinder();
+    destPos = position;
 }
 
 Player::~Player()
@@ -18,40 +36,59 @@ Player::~Player()
 
 void Player::Act(Level* level)
 {
-    KeyManager* km = KeyManager::GetInstance();
-
-    if (isMoving)
+    switch (curState)
     {
+    case EntityState::IDLE:
+        ActIdle(level);
+        return;
+    case EntityState::MOVE:
         Move(level);
         return;
+    case EntityState::ATTACK:
+        Attack(level);
+        return;
+    case EntityState::DEAD:
+        // player는 죽은채로 계속 애니메이션 돼야함
+        return;
     }
-
-    if (km->IsOnceKeyDown(VK_UP))
-        targetPos = { position.x, position.y - TILE_SIZE };
-    else if (km->IsOnceKeyDown(VK_DOWN))
-        targetPos = { position.x, position.y + TILE_SIZE };
-    else if (km->IsOnceKeyDown(VK_LEFT))
-        targetPos = { position.x - TILE_SIZE, position.y };
-    else if (km->IsOnceKeyDown(VK_RIGHT))
-        targetPos = { position.x + TILE_SIZE, position.y };
-    else return;
-
-    isMoving = level->GetMap(targetPos.x, targetPos.y)->CanGo();
 }
 
-bool Player::NeedsInput()
+void Player::Attack(Level* level)
 {
-    return !isMoving;
+    if (target)
+    {
+        CombatSyetem::GetInstance()->ProcessAttack(this, target);
+        Stop();
+        curState = EntityState::IDLE;
+    }
 }
 
-bool Player::IsBusy()
+void Player::ActIdle(Level* level)
 {
-    return isMoving;
+    if (finder->FindPath(position, destPos, level, OUT path))
+        targetPos = path[1];
+    if (position == destPos) return;
+
+    //isMoving = level->GetMap(targetPos.x, targetPos.y)->CanGo();
+
+    target = level->GetActorAt(targetPos);
+    if (target)
+    {
+        curState = EntityState::ATTACK;
+        return;
+    }
+    if (!level->GetMap(targetPos.x, targetPos.y)->CanGo()) return;
+
+    curState = EntityState::MOVE;
 }
 
 void Player::Move(Level* level)
 {
-    if (!level->GetMap(targetPos.x, targetPos.y)->CanGo()) return;
+    //if (!level->GetMap(targetPos.x, targetPos.y)->CanGo())
+    //{
+    //    curState = EntityState::IDLE;
+    //    return;
+    //}
 
     FPOINT delta = targetPos - position;
 
@@ -64,9 +101,9 @@ void Player::Move(Level* level)
     delta = targetPos - position;
 
     // 매직넘버로,,, -> 변수로 dir 저장해두고 쓰면 Dot Product
-    if (delta.Length() <= 0.5f)
+    if (delta.Length() <= 10.f)
     {
         position = targetPos;
-        isMoving = false;
+        curState = EntityState::IDLE;
     }
 }

@@ -15,8 +15,9 @@ private:
 	//map
 	Map map[TILE_Y * TILE_X];
 	RECT mapRc;
-	RECT tempTile[TILE_Y * TILE_X]; //타일 이미지 넣기 전 임시 이미지 그리기용 배열
-	int tempTileSize; // 20*20 규격의 맵에 알맞은 임시 타일 사이즈
+	TileData tileData[TILE_Y * TILE_X];
+	//RECT tempTile[TILE_Y * TILE_X]; //타일 이미지 넣기 전 임시 이미지 그리기용 배열
+	//int tempTileSize; // 20*20 규격의 맵에 알맞은 임시 타일 사이즈
 
 	Camera* camera;
 
@@ -54,11 +55,12 @@ public:
 	void Update();
 	void Render(HDC hdc);
 
+	Entity* GetActorAt(FPOINT pos);
 	void AddActor(Entity* actor);
 	int GetMapIndex(int x, int y) {return (y - GRID_POS_OFFSET.y - TILE_SIZE / 2) / 30 * TILE_X + (x - GRID_POS_OFFSET.x - TILE_SIZE / 2) / 30;}
 	Map* GetMap(int x, int y) { return &map[(y - GRID_POS_OFFSET.y - TILE_SIZE / 2) / 30 * TILE_X + (x - GRID_POS_OFFSET.x - TILE_SIZE / 2) / 30]; }
 
-	FPOINT GetPosByGridIndex(int idx, int idy) const { return {GRID_POS_OFFSET.x + (idx * 2 + 1) / 2.f * tempTileSize, GRID_POS_OFFSET.y + (idy * 2 + 1) / 2.f * tempTileSize}; }
+	//FPOINT GetPosByGridIndex(int idx, int idy) const { return {GRID_POS_OFFSET.x + (idx * 2 + 1) / 2.f * tempTileSize, GRID_POS_OFFSET.y + (idy * 2 + 1) / 2.f * tempTileSize}; }
 	
 	void FileLoad();
 

@@ -11,7 +11,7 @@ private:
 	D2DImage* sampleTile;
 	RECT rcSampleTile;
 
-	Map tileInfo[TILE_X * TILE_Y];
+	TileData tileInfo[TILE_X * TILE_Y];
 	RECT rcMain;
 
 	
