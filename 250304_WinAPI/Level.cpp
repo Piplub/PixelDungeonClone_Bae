@@ -71,7 +71,7 @@ void Level::Init(Player* player, int floor, bool isProcedural)
 
 
     // Generate dungeon
-    dungeonSystem.GenerateDungeon(true, this, mapWidth, mapHeight, 10, 8, 12);
+    dungeonSystem.GenerateDungeon(true, this, mapWidth, mapHeight, 10, 8, 12, nullptr, floor);
 
     ascInd = dungeonSystem.GetDungeonGenerator()->GetAscInd();
     int ascY = ascInd / TILE_X;
