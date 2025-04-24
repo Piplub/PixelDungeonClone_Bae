@@ -62,11 +62,13 @@ inline void UIValueBar::SetAnimator(float max)
 }
 
 inline void UIValueBar::Update(float deltaTime) {
+    if (!isActive || !isVisible) return;
     float current = animator.Update(deltaTime);
     fillPercent = max(0.0f, min(current / maxValue, 1.0f));
 }
 
 inline void UIValueBar::Render(ID2D1HwndRenderTarget* rt) {
+    if (!isActive || !isVisible) return;
     D2D1_RECT_F rect = GetScaledDrawRect();
     FPOINT ws = GetWorldScale();
 
@@ -88,10 +90,4 @@ inline void UIValueBar::Render(ID2D1HwndRenderTarget* rt) {
 
         style.handle.image->RenderRaw(handleX, handleY, handleWidth, handleHeight, ws.x, ws.y, 0.0f, false, false, style.fill.alpha);
     }
-
-    // 🔸 출력 디버그용 외곽선
-    ID2D1SolidColorBrush* debugBrush = nullptr;
-    rt->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Blue), &debugBrush);
-    rt->DrawRectangle(rect, debugBrush, 1.0f);
-    if (debugBrush) debugBrush->Release();
 }

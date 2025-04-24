@@ -53,17 +53,16 @@ public:
         D2D1_RECT_F r = GetWorldRect();
         FPOINT ws = GetWorldScale();
 
-        float width = (r.right - r.left) * ws.x;
-        float height = (r.bottom - r.top) * ws.y;
-
-        float centerX = (r.left + r.right) * 0.5f;
-        float centerY = (r.top + r.bottom) * 0.5f;
+        float originW = GetWidth();
+        float originH = GetHeight();
+        float width = originW * ws.x;
+        float height = originH * ws.y;
 
         return D2D1::RectF(
             r.left,
             r.top,
-            r.left + width,
-            r.top + height
+            r.left  + width,
+            r.top + height  
         );
     }
 
@@ -146,6 +145,6 @@ public:
     void SetVisible(bool visible) { isVisible = visible; }
     bool IsVisible() const { return isVisible; }
 
-    void SetActive(bool active) { isActive = active; }
+    virtual void SetActive(bool active) { isActive = active; }
     bool IsActive() const { return isActive; }
 };

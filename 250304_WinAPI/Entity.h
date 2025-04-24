@@ -95,6 +95,8 @@ public:
     inline float GetSpeed() const { return speed; }
     inline EntityType GetType() const { return type; }
     inline int GetExp() { return exp; }
+    inline int GetMaxExp() { return maxExp; }
+    inline int GetLevel() { return level; }
     inline D2DImage* GetImage() { return image; }
     inline int GetCurAnimIdx() { return curAnimFrame; }
     inline int GetHP() const { return hp; };

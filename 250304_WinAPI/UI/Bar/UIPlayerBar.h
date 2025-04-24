@@ -67,11 +67,13 @@ inline void UIPlayerBar::UpdateSetTextValue() const
 }
 
 inline void UIPlayerBar::Update(float deltaTime) {
+    if (!isActive || !isVisible) return;
     bar->Update(deltaTime);
     UpdateSetTextValue();
 }
 
 inline void UIPlayerBar::Render(ID2D1HwndRenderTarget* rt) {
+    if (!isActive || !isVisible) return;
     D2D1_RECT_F rect = GetScaledDrawRect();
     FPOINT ws = GetWorldScale();
 

@@ -11,18 +11,16 @@
 #include "Inventory.h"
 #include "GameOver.h"
 #include "UI/UIMopHPManager.h"
+#include "UI/Bar/UIMopBar.h"
 
 void UIManager::RegisterPlayer(Player* player)
 {
     if (!player) return;
-    if (currentPlayer == player) return;
     
-    if (currentPlayer)
-    {
-        UnregisterPlayer(currentPlayer);
-    }
+    if (currentPlayer == player) return;
 
-    currentPlayer = player;
+    SetCurrentPlayer(player);
+    
     player->GetEntityObserverHub().AddObserver(uiStatusToolbar);
     player->GetEntityObserverHub().AddObserver(uiStatusPanel);
     player->GetEntityObserverHub().AddObserver(uiQuickSlotToolbar);
@@ -34,23 +32,43 @@ void UIManager::RegisterEntity(Entity* entity)
 {
     if (!entity) return;
 
-    auto mopHPBar = uiMopHPManager->CreateMopHPBar(entity, camera);
-    entity->GetEntityObserverHub().AddObserver(mopHPBar);
+    if (uiMopHPManager)
+    {
+        auto mopHPBar = uiMopHPManager->CreateMopHPBar(entity, camera);
+        entity->GetEntityObserverHub().AddObserver(mopHPBar);
+    }
     entity->GetEntityObserverHub().AddObserver(uiEffectManager);
+
+    if (entity->GetType() != EntityType::PLAYER)
+    {
+        observerOwnerEntities.insert(entity);
+    }
 }
 
 void UIManager::UnregisterPlayer(Player* player)
 {
+    if (!player) return;
+    
     player->GetEntityObserverHub().RemoveObserver(uiStatusToolbar);
     player->GetEntityObserverHub().RemoveObserver(uiStatusPanel);
     player->GetEntityObserverHub().RemoveObserver(uiQuickSlotToolbar);
     player->GetEntityObserverHub().RemoveObserver(uiInventoryPanel);
     player->GetEntityObserverHub().RemoveObserver(uiGameOver);
+
 }
 
 void UIManager::UnregisterEntity(Entity* entity)
 {
+    if (!entity) return;
+    
+    if (uiMopHPManager)
+    {
+        uiMopHPManager->DetachMopBar(entity);
+    }
     entity->GetEntityObserverHub().RemoveObserver(uiEffectManager);
+
+    observerOwnerEntities.erase(entity);
+
 }
 
 void UIManager::RegisterCamera(Camera* cam)
@@ -59,7 +77,10 @@ void UIManager::RegisterCamera(Camera* cam)
 
     this->camera = cam;
 
-    uiEffectManager->SetCamera(camera);
+    if (uiEffectManager)
+    {
+        uiEffectManager->SetCamera(camera);
+    }
 }
 
 
@@ -72,8 +93,8 @@ void UIManager::SendLog(const wstring& msg, D2D1_COLOR_F color)
     }
 }
 
-void UIManager::SendTextEffect(const std::wstring& text, const D2D1_RECT_F& rect, TextStyle* textStyle,
-                               EffectStyle* effectStyle)
+void UIManager::SendTextEffect(const std::wstring& text, const D2D1_RECT_F& rect,
+    TextStyle* textStyle, EffectStyle* effectStyle)
 {
     if (uiEffectManager)
     {
@@ -101,6 +122,7 @@ void UIManager::UseUIItem(int idx)
 
 UIManager::~UIManager()
 {
+    Release();
 }
 
 void UIManager::SetRestartCallback(std::function<void()> cb)
@@ -108,9 +130,54 @@ void UIManager::SetRestartCallback(std::function<void()> cb)
     restartCallback = cb;
 }
 
-void UIManager::ClearUiContainers()
+void UIManager::SetCurrentPlayer(Player* player)
 {
+    if (!player) return; 
+    currentPlayer = player;
+
+    if (uiStatusToolbar)
+    {
+        uiStatusToolbar->UpdateStat(player);
+    }
+}
+
+Player* UIManager::GetCurrentPlayer()
+{
+    return currentPlayer;
+}
+
+void UIManager::DeleteLevelUI()
+{
+    UnregisterPlayer(currentPlayer);
+    UnregisterEntity(currentPlayer);
+
+    auto it = observerOwnerEntities.begin();
+    while (it != observerOwnerEntities.end())
+    {
+        Entity* entity = *it;
+        ++it;  
+        UnregisterEntity(entity);
+    }
+
+    observerOwnerEntities.clear();
+
+    for (auto uiCon_it = uiContainers.begin(); uiCon_it != uiContainers.end(); ++uiCon_it)
+    {
+        delete *uiCon_it;
+        *uiCon_it = nullptr;
+    }
+    
     uiContainers.clear();
+
+    delete uiEffectManager;
+    uiEffectManager = nullptr;
+    delete uiMopHPManager;
+    uiMopHPManager = nullptr;
+}
+
+void UIManager::OnRelaseEntity(Entity* entity)
+{
+    UnregisterEntity(entity);
 }
 
 void UIManager::Init()
@@ -119,58 +186,59 @@ void UIManager::Init()
     rdt = D2DImage::GetRenderTarget();
     mouseManager = MouseManager::GetInstance();
 
-    UIResourceSubManager::Preload_NinePatch();
-
-    ClearUiContainers();
+    UIResourceSubManager::PreloadAll();
+    
     /* 생성기 Load */
-    uiResourceManager = new UIResourceSubManager();
-    uiResourceManager->PreloadAll();
     uiMopHPManager = new UIMopHPManager();
     uiMopHPManager->Init();
+    uiEffectManager = new UIEffectManager();
+
+    uiGameOver = new UIGameOver();
+    uiGameOver->Init(); 
+    uiGameOver->SetActive(false);
+
 
     /* 기본 Load */
     uiStatusToolbar = new UIStatusToolbar();
-    uiQuickSlotToolbar = new UIQuickSlotToolbar();
-    uiTopRightUI = new UITopRightUI();
-    uiStatusPanel = new UIStatusPanel();
-    uiInventoryPanel = new UIInventory();
-    uiTextLogPanel = new UITextLogPanel();
-    uiEffectManager = new UIEffectManager();
-    uiGameOver = new UIGameOver(); 
-    uiGameOver->Init(); 
-    uiGameOver->SetActive(false);
     uiStatusToolbar->Init();
+
+    uiQuickSlotToolbar = new UIQuickSlotToolbar();
+    uiQuickSlotToolbar->Init();
+
+    uiTopRightUI = new UITopRightUI();
     uiTopRightUI->Init();
+
+    uiTextLogPanel = new UITextLogPanel();
+    uiTextLogPanel->Init();
+
+    uiStatusPanel = new UIStatusPanel();
     uiStatusPanel->Init();
     uiStatusPanel->SetActive(false);
+
+    uiInventoryPanel = new UIInventory();
     uiInventoryPanel->Init();
     uiInventoryPanel->SetActive(false);
-    uiQuickSlotToolbar->Init();
-    uiTextLogPanel->Init();
+
 
     /* UIContainers 버튼 연결 */
     uiQuickSlotToolbar->SetActionOnClick(0, [this](){});
     uiQuickSlotToolbar->SetActionOnClick(1, [this](){});
     uiQuickSlotToolbar->SetActionOnClick(2, [this]()
     {
-        uiInventoryPanel->SetActive(true);
+        uiInventoryPanel->SetActive(!uiInventoryPanel->IsActive());
+    });
     
-        float mx = mouseManager->GetMousePos().x;
-        float my = mouseManager->GetMousePos().y;
-    
-        D2D1_RECT_F effectRect = D2D1::RectF(mx - 10, my - 10, mx + 10, my + 10);
-
-        TextStyle style;
-        style.fontName = L"pixel";
-        style.fontSize = 14.0f;
-        style.color = D2D1::ColorF(D2D1::ColorF::White);
-        style.bold = true;
-        style.horizontalAlign = DWRITE_TEXT_ALIGNMENT_CENTER;
-        style.verticalAlign = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-        EffectStyle effectStyle;
-
-        SendTextEffect(L"Click", effectRect,&style, &effectStyle);
-        SendLog(L"Inventory Quick Click", D2D1::ColorF(D2D1::ColorF::Yellow));
+    uiStatusToolbar->SetStatusButtonEvent([this]()
+    {
+        if (!uiStatusPanel->IsActive())
+        {
+            uiStatusPanel->UpdatePlayerStat(GetCurrentPlayer());
+            uiStatusPanel->SetActive(true);
+        }
+        else
+        {
+            uiStatusPanel->SetActive(false);
+        }
     });
 
     /* Add UIContainers */
@@ -180,7 +248,6 @@ void UIManager::Init()
     uiContainers.push_back(uiTextLogPanel);
     uiContainers.push_back(uiStatusPanel);
     uiContainers.push_back(uiInventoryPanel);
-    uiContainers.push_back(uiGameOver);
     
 }
 
@@ -197,14 +264,22 @@ void UIManager::Update()
     {
         float mx = mouseManager->GetMousePos().x;
         float my = mouseManager->GetMousePos().y;
-        
-        for (auto uiContainer_it = uiContainers.begin(); uiContainer_it != uiContainers.end(); ++uiContainer_it)
+
+        if (uiGameOver && uiGameOver->HandleClick(mx, my))
         {
-            if ((*uiContainer_it)->HandleClick(mx, my))
+            MouseManager::GetInstance()->InitPoints();
+            MouseManager::GetInstance()->AlreadyClickUsed();
+        }
+        else
+        {
+            for (auto uiContainer_it = uiContainers.rbegin(); uiContainer_it != uiContainers.rend(); ++uiContainer_it)
             {
-                MouseManager::GetInstance()->InitPoints();
-                MouseManager::GetInstance()->AlreadyClickUsed();
-                break;
+                if ((*uiContainer_it)->HandleClick(mx, my))
+                {
+                    MouseManager::GetInstance()->InitPoints();
+                    MouseManager::GetInstance()->AlreadyClickUsed();
+                    break;
+                }
             }
         }
     }
@@ -212,13 +287,23 @@ void UIManager::Update()
 
     /* Update */
     float dt = tmMgr->GetDeltaTime();
-    
-    uiMopHPManager->Update(dt);
+
+    if (uiMopHPManager)
+    {
+        uiMopHPManager->Update(dt);
+    }
     for (auto uiContainer_it = uiContainers.begin(); uiContainer_it != uiContainers.end(); ++uiContainer_it)
     {
         (*uiContainer_it)->Update(dt);
     }
-    uiEffectManager->Update(dt);
+    if (uiEffectManager)
+    {
+        uiEffectManager->Update(dt);
+    }
+    if (uiGameOver)
+    {
+        uiGameOver->Update(dt);
+    }
     ///////
 
 
@@ -228,9 +313,8 @@ void UIManager::Update()
     }
     if (KeyManager::GetInstance()->IsOnceKeyDown('Z'))
     {
-        
+        DeleteLevelUI();
     }
-
     if (KeyManager::GetInstance()->IsOnceKeyDown('J'))
     {
             // 샘플 텍스트 목록
@@ -270,26 +354,34 @@ void UIManager::Update()
 void UIManager::Render()
 {
     /* Render 순서 주의 */
-    uiMopHPManager->Render(rdt);
+    if (uiMopHPManager)
+    {
+        uiMopHPManager->Render(rdt);
+    }
     for (auto uiContainer_it = uiContainers.begin(); uiContainer_it != uiContainers.end(); ++uiContainer_it)
     {
         (*uiContainer_it)->Render(rdt);
     }
-    uiEffectManager->Render(rdt);
-    
+    if (uiEffectManager)
+    {
+        uiEffectManager->Render(rdt);
+    }
+    if (uiGameOver)
+    {
+        uiGameOver->Render(rdt);
+    }
 }
 
 void UIManager::Release()
 {
-    if (uiStatusPanel) delete uiStatusPanel;
-    if (uiQuickSlotToolbar) delete uiQuickSlotToolbar;
-    if (uiTextLogPanel) delete uiTextLogPanel;
-    if (uiEffectManager) delete uiEffectManager;
-    if (uiGameOver) delete uiGameOver;
+    uiGameOver->SetActive(false);
+    DeleteLevelUI();
     
     /* 절대 삭제 금지 */
     tmMgr = nullptr;
     rdt = nullptr;
+    mouseManager = nullptr;
+    camera = nullptr;
 }
 
 bool UIManager::CheckZoomChange()

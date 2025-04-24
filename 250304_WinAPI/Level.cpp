@@ -130,6 +130,11 @@ void Level::Init(Player* player, int floor, bool isProcedural)
 
 void Level::Release()
 {
+    if (uiManager)
+    {
+        uiManager->DeleteLevelUI();
+        uiManager = nullptr;
+    }
     
 	for (auto& actor : actors)
 	{
@@ -156,8 +161,6 @@ void Level::Release()
             item = nullptr;
         }
     }
-    
-    uiManager = nullptr;
 
     if (camera) {
         camera = nullptr;
@@ -383,6 +386,7 @@ Level::Level()
 
 Level::~Level()
 {
+    Release();
 }
 
 FPOINT Level::GetPlayerPos()

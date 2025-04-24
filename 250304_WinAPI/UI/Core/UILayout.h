@@ -17,8 +17,8 @@ private:
     bool  bottomToTop = true;
 
 public:
-    UIVerticalLayout(float spacing = 0.0f, float padding = 0.0f)
-        : spacing(spacing), padding(padding), bottomToTop(true) {
+    UIVerticalLayout(float spacing = 0.0f, float padding = 0.0f, bool bottomToTop = true)
+        : spacing(spacing), padding(padding), bottomToTop(bottomToTop) {
     }
 
     void Apply(std::vector<UIComponent*>& children, const D2D1_RECT_F& parentRect) override {

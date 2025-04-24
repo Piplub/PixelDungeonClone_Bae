@@ -25,7 +25,7 @@ void FieldOfView::Calculate(Map(&map)[TILE_Y][TILE_X], int viewRange, int tileId
 		int dy = -depth;
 		int exploreStartSlope = startSlope;
 
-		for (int dx = -depth; dx <= 0; ++dx) {
+		for (int dx = ceil(-depth * nextStart); dx <= 0; ++dx) {
 			// 1) 슬로프 계산
 			float leftSlope = (dx - 0.5f) / (dy + 0.5f);
 			float rightSlope = (dx + 0.5f) / (dy - 0.5f);
@@ -49,13 +49,14 @@ void FieldOfView::Calculate(Map(&map)[TILE_Y][TILE_X], int viewRange, int tileId
 			//}
 
 			// 3) 비차단 타일 표시
-			if (!blocked && tile.type != 0) {
+			if (!blocked && (tile.type != 0 && tile.type != 6)) {
 				tile.visible = true;
 				//tile.SetColor(RGB(0, 255, 0));
 			}
 
 			// 4) 벽 발견 시 재귀 분기
-			if (tile.type == 0) {
+			if (tile.type == 0 || tile.type == 6) {
+				tile.visible = true;
 				blocked = true;
 				Calculate(map, viewRange, tileIdX, tileIdY,
 					depth + 1, exploreStartSlope, leftSlope, direction);
@@ -63,7 +64,7 @@ void FieldOfView::Calculate(Map(&map)[TILE_Y][TILE_X], int viewRange, int tileId
 				exploreStartSlope = (leftSlope >= 1.0f ? 0.99999f : leftSlope);
 			}
 			// 5) 그림자 끝 지점 복귀
-			else if (blocked && tile.type == 0) {
+			else if (blocked && (tile.type != 0 && tile.type != 6)) {
 				blocked = false;
 				startSlope = nextStart;
 				tile.visible = true;

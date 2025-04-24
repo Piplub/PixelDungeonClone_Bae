@@ -13,10 +13,11 @@ struct UIInventorySlotData
 
 struct PlayerStatData {
     std::wstring title{L"스탯창"};
-    int strength = 0;
-    std::wstring hp{L"10/20"};   
-    std::wstring exp{L"3/10"};   
-    int gold = 0;
-    int maxFloor = 0;
-    std::wstring dungeonSeed;
+    int attack = 0;
+    int hp = 0;
+    int maxHp = 0;
+    int exp = 0;
+    int maxExp = 0;
+    int def = 0;
+    int level = 0;
 };

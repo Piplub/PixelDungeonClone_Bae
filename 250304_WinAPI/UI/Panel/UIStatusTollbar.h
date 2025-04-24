@@ -6,9 +6,11 @@
 #include "../../Observer/IEntityObserver.h"
 #include "../Bar/UIPlayerBar.h"
 #include "../VisualStyle.h"
+#include "Player.h"
 
 class UIStatusToolbar : public UIContainer, public IEntityObserver {
 private:
+    UIImageTextButton* statusBtn = nullptr;
     UIPlayerBar* hpBar = nullptr;
     UIPlayerBar* expBar = nullptr;
     UITextBox* levelText = nullptr;
@@ -24,6 +26,8 @@ public:
     void OnEntityDamageTaken(DamageTakenData data) override
     {
         SetHP(data.entity->GetHP(), data.entity->GetMaxHP());
+        SetEXP(data.entity->GetExp(), data.entity->GetMaxExp());
+        SetLevel(data.entity->GetLevel());
     }
     
     void Init(const D2D1_RECT_F& rect = { 0.0f, 610.0f, 398.0f, 711.0f }) override
@@ -36,6 +40,15 @@ public:
         AddEXPBar();
         AddCharacterIcon();
         AddLevelText();
+    }
+
+    void UpdateStat(Player* data)
+    {
+        if (!data) return;
+        
+        SetHP(data->GetHP(), data->GetMaxHP());
+        SetEXP(data->GetExp(), data->GetMaxExp());
+        SetLevel(data->GetLevel());
     }
 
     void SetHP(int current, int max) {
@@ -55,6 +68,14 @@ public:
     void SetLevel(int level) {
         if (levelText) {
             levelText->SetText(L"Lv. " + std::to_wstring(level));
+        }
+    }
+
+    void SetStatusButtonEvent(const std::function<void()>& onClick)
+    {
+        if (statusBtn)
+        {
+            statusBtn->SetOnClick(onClick);
         }
     }
 
@@ -78,17 +99,13 @@ private:
     }
 
     void AddCharacterIcon() {
-        auto* icon = new UIImageTextButton();
-        icon->Init({ 0, 0, 74.25f, 74.25f });
-        AddChild(icon);
-
         UIIconStyle charIconStyle =
         {
  {D2DImageManager::GetInstance()->FindImage("status_character_bg"), },
 {D2DImageManager::GetInstance()->FindImage("status_character_ico"), { 17.32f, 9.0f, 17.32f, 9.0f }},
         };
             
-        icon->InitFromStyle(charIconStyle, {0,0, icon->GetWidth(), icon->GetHeight()});
+        statusBtn = UIHelper::ApplyIconStyle(this, { 0, 0, 74.25f, 74.25f }, charIconStyle);
     }
 
     void AddLevelText() {
@@ -102,8 +119,7 @@ private:
         levelText->Init(style, L"Lv. 1", { 0, 74, 74.25f, 98.75f });
         AddChild(levelText);
     }
-
-private:
+    
     void SetStyle()
     {
         hpBarBgStyle = ImageStyle
