@@ -1,4 +1,4 @@
-#include "GameScene.h"
+﻿#include "GameScene.h"
 #include "CommonFunction.h"
 #include "Level.h"
 #include "UIManager.h"
@@ -74,6 +74,7 @@ void GameScene::Restart()
 
 	UIManager::GetInstance()->GetUiGameOver()->SetRestartCallBack([this]() {
 		this->Restart(); UIManager::GetInstance()->SendLog(L"Click", D2D1::ColorF(D2D1::ColorF::Blue)); });
+}
 
 void GameScene::Ascend()
 {
