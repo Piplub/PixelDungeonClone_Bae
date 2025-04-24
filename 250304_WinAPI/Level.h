@@ -32,8 +32,8 @@ protected:
 
 	int ascInd;
 	int descInd;
-	RECT ascRc;
-	RECT descRc;
+	FPOINT ascCenter;
+	FPOINT descCenter;
 
 
 	float nowZoomScale;
@@ -90,8 +90,7 @@ protected:
 	UIManager* uiManager;
 
 	//Ascending, Descending
-	function<void()> Ascending;
-	function<void()> Descending;
+	
 	
 public:
 	virtual void Init(Player* player, int floor = 0, bool isProcedural = true);
@@ -124,8 +123,8 @@ public:
 	void SetVisibleTile();
 	void Render8x8Tiles(HDC hdc);
 
-	void SetAscending(function<void()> asc);
-	void SetDescending(function<void()> dsc);
+	inline FPOINT GetAscPos() { return ascCenter; }
+	inline FPOINT GetDescPos() { return descCenter; }
 
 	
 

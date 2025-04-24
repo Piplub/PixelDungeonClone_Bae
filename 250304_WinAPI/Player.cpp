@@ -65,6 +65,12 @@ Player::~Player()
 {
 }
 
+void Player::SetStairs(const FPOINT& ascPos, const FPOINT& descPos)
+{
+    nowAscPos = ascPos;
+    nowDescPos = descPos;
+}
+
 void Player::Update()
 {
     Super::Update();
@@ -134,7 +140,17 @@ void Player::ActIdle(Level* level)
         }
     }
 
-    if (position == destPos) return;
+    if (position == destPos) { 
+        if (destPos == nowAscPos && justMoved == false) {
+            //목적지가 올라가는 계단이면 올라가는 함수 실행
+            Ascending();
+        }
+        else if (destPos == nowDescPos && justMoved == false) {
+            //목적지가 내려가는 계단이면 내려가는 함수 실행
+            Descending();
+        }
+        return; 
+    }
     if (finder->FindPath(position, destPos, level, OUT path))
         targetPos = path[1];
 
@@ -156,6 +172,12 @@ void Player::GetItem(Item* item)
         inven->AddItem(item);
         entityObserver.NotifyChangePlayerInven(this);
     }
+}
+
+void Player::SetFunctions(function<void()> asc, function<void()> desc)
+{
+    Ascending = asc;
+    Descending = desc;
 }
 
 void Player::Heal(int healAmount)

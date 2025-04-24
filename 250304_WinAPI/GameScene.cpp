@@ -7,9 +7,11 @@
 HRESULT GameScene::Init()
 {
 	SetClientRect(g_hWnd, WINSIZE_X, WINSIZE_Y);
+	logColor = { 1.0f, 0.4f, 0.4f, 1.0f };
+	currLevel = 0;
 
 	player = new Player({0,0}, 1000.f, 20, 50, 2);
-
+	player->SetFunctions([this]() {this->Ascend(); }, [this]() {this->Descend(); });
 	uiManager = UIManager::GetInstance();
 	uiManager->Init();
 	uiManager->RegisterPlayer(player);
@@ -20,17 +22,19 @@ HRESULT GameScene::Init()
 	uiManager->GetUiGameOver()->SetExitCallBack([]() {
 		PostQuitMessage(0); });
 	
-	currLevel = 0;
-	for (int i = 0; i < 7; ++i) {
+	
+	/*for (int i = 0; i < 7; ++i) {
 		levels[i] = new Level();
 		levels[i]->Init(player, i+1, true);
-		levels[i]->SetAscending([this]() {
-			this->Ascend(); });
-		levels[i]->SetDescending([this]() {
-			this->Descend(); });
+	}*/
+	levels[0] = new Level();
+	levels[0]->Init(player, 1, true);
+	for (int i = 1; i < 6; ++i) {
+		levels[i] = nullptr;
 	}
 
-	player->SetPosition(levels[currLevel]->GetPlayerInitP());
+	player->SetPosition(levels[0]->GetPlayerInitP());
+	player->SetStairs(levels[0]->GetAscPos(), levels[0]->GetDescPos());
 
 	
 	
@@ -82,9 +86,16 @@ void GameScene::Ascend()
 	if (currLevel < 0) {
 		currLevel = 0;
 		// 로그창에 현재층 0층이라는 거 나오게 하기
+		uiManager->SendLog(L"현재 계신 곳이 최상층입니다.", logColor);
+		player->SetJustMoved(true);
+		return;
 	}
 	else {
-		player->SetPosition(levels[currLevel]->GetPlayerInitP());
+		if (levels[currLevel] == nullptr) return;
+		player->SetPosition(levels[currLevel]->GetDescPos());
+		player->SetNextPos(levels[currLevel]->GetDescPos());
+		player->SetStairs(levels[currLevel]->GetAscPos(), levels[currLevel]->GetDescPos());
+		player->SetJustMoved(true);
 	}
 	
 }
@@ -95,9 +106,18 @@ void GameScene::Descend()
 	if (currLevel > 6) {
 		currLevel = 6;
 		// 로그창에 현재층 마지막 층이라는 거 나오게 하기
+		uiManager->SendLog(L"현재 계신 곳이 마지막 층입니다.", logColor);
+		player->SetJustMoved(true);
+		return;
 	}
 	else {
+		levels[currLevel] = new Level();
+		levels[currLevel]->Init(player, currLevel + 1, true);
+
 		player->SetPosition(levels[currLevel]->GetPlayerInitP());
+		player->SetNextPos(levels[currLevel]->GetPlayerInitP());
+		player->SetStairs(levels[currLevel]->GetAscPos(), levels[currLevel]->GetDescPos());
+		player->SetJustMoved(true);
 	}
 }
 
