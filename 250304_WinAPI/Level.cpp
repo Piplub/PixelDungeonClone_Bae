@@ -132,11 +132,11 @@ void Level::Init(Player* player, int floor, bool isProcedural)
 
 void Level::Release()
 {
-    if (uiManager)
+    /*if (uiManager)
     {
         uiManager->DeleteLevelUI();
         uiManager = nullptr;
-    }
+    }*/
     
 	for (auto& actor : actors)
 	{
@@ -244,7 +244,7 @@ void Level::Update()
 
                 if (map[indY * TILE_X + indX].CanGo())
                     player->SetNextPos(GetPosByGridIndex(indX, indY));
-                    player->SetJustMoved(false);
+                    //player->SetJustMoved(false);
             } ///
 
             MouseManager::GetInstance()->InitPoints();

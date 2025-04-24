@@ -44,6 +44,9 @@ HRESULT GameScene::Init()
 
 void GameScene::Release()
 {
+	uiManager->DeleteLevelUI();
+	uiManager = nullptr;
+
 	for (auto& l : levels) {
 		if (l != nullptr) {
 			l->Release();
@@ -74,7 +77,6 @@ void GameScene::Restart()
 {
 	Release();
 	Init();
-
 
 	UIManager::GetInstance()->GetUiGameOver()->SetRestartCallBack([this]() {
 		this->Restart(); UIManager::GetInstance()->SendLog(L"Click", D2D1::ColorF(D2D1::ColorF::Blue)); });

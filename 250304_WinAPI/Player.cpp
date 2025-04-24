@@ -104,6 +104,9 @@ void Player::Act(Level* level)
         ActIdle(level);
         return;
     case EntityState::MOVE:
+        if (justMoved == true) {
+            justMoved = false;
+        }
         Move(level);
         return;
     case EntityState::ATTACK:
