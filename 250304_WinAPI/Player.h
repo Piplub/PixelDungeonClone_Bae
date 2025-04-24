@@ -25,6 +25,7 @@ public:
     bool NeedsInput() override { return true; }
     bool IsBusy() override { return curState != EntityState::IDLE; }
 
+    
     void SetNextPos(FPOINT pos) { destPos = pos; }
     void GetItem(Item* item);
     inline Inventory* GetInven() { return inven; }

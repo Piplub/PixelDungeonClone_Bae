@@ -8,7 +8,7 @@ HRESULT TestGameScene::Init()
 {
 
 	testLevel = new TestLevel(nowFilePath);
-	testLevel->Init();
+	testLevel->Init(nullptr, 0, false);
 
 	UIManager::GetInstance()->GetUiGameOver()->SetRestartCallBack([this]() {
 		this->Restart(); });
@@ -46,7 +46,7 @@ void TestGameScene::Restart()
 {
 	Release();
 	testLevel = new TestLevel(nowFilePath);
-	testLevel->Init();
+	testLevel->Init(nullptr, 0, false);
 
 	UIManager::GetInstance()->GetUiGameOver()->SetRestartCallBack([this]() {
 		this->Restart(); });
