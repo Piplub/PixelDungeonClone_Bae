@@ -22,8 +22,10 @@
 #include "TileMapping8x8.h"
 
 
-void Level::Init()
+void Level::Init(Player* player, int floor, bool isProcedural)
 {
+    this->player = player;
+    levelFloor = floor;
     turnManager = new TurnManager();
 
     sampleTile = D2DImageManager::GetInstance()->AddImage(
@@ -69,21 +71,42 @@ void Level::Init()
 
 
     // Generate dungeon
-    dungeonSystem.GenerateDungeon(this, mapWidth, mapHeight, 10, 8, 12);
+    dungeonSystem.GenerateDungeon(true, this, mapWidth, mapHeight, 10, 8, 12);
+
+    ascInd = dungeonSystem.GetDungeonGenerator()->GetAscInd();
+    int ascY = ascInd / TILE_X;
+    int ascX = ascInd % TILE_X;
+    FPOINT ascCenter = GetPosByGridIndex(ascX, ascY);
+    descInd = dungeonSystem.GetDungeonGenerator()->GetDescInd();
+    int descY = descInd / TILE_X;
+    int descX = descInd % TILE_X;
+    FPOINT descCenter = GetPosByGridIndex(descX, descY);
+    ascRc = {
+        static_cast<long>(ascCenter.x) - TILE_SIZE / 2,
+        static_cast<long>(ascCenter.y) - TILE_SIZE / 2,
+        static_cast<long>(ascCenter.x) + TILE_SIZE / 2,
+        static_cast<long>(ascCenter.y) + TILE_SIZE / 2,
+
+    };
+    descRc = {
+        static_cast<long>(descCenter.x) - TILE_SIZE / 2,
+        static_cast<long>(descCenter.y) - TILE_SIZE / 2,
+        static_cast<long>(descCenter.x) + TILE_SIZE / 2,
+        static_cast<long>(descCenter.y) + TILE_SIZE / 2,
+
+    };
 
     // Place player near entrance
-    FPOINT playerPos = GetEntranceSpawnPosition();
-    player = new Player(playerPos, 1000.f, 20, 50, 2);
+    playerInitP = GetEntranceSpawnPosition();
+    //player->SetPosition(playerPos);
     AddActor(player);
     
     camera = new Camera();
-    camera->Init(player->GetPosition());
+    camera->Init(playerInitP);
 
     // UI
     uiManager = UIManager::GetInstance();
-    uiManager->Init();
     uiManager->RegisterCamera(camera);
-    uiManager->RegisterPlayer(player);
     //
     
     for (auto actor : actors)
@@ -98,8 +121,8 @@ void Level::Init()
 
 
     // Item
-    Item* potion1 = new HealPotion(playerPos + FPOINT{ TILE_SIZE , TILE_SIZE });
-    Item* potion2 = new HealPotion(playerPos + FPOINT{ TILE_SIZE , 0 });
+    Item* potion1 = new HealPotion(playerInitP + FPOINT{ TILE_SIZE , TILE_SIZE });
+    Item* potion2 = new HealPotion(playerInitP + FPOINT{ TILE_SIZE , 0 });
     AddItem(potion1);
     AddItem(potion2);
 
@@ -126,7 +149,7 @@ void Level::Release()
     {
         //delete player;
         player = nullptr;
-        uiManager->SetCurrentPlayer(nullptr);
+        //uiManager->SetCurrentPlayer(nullptr);
     }
 
     // Items
@@ -149,16 +172,26 @@ void Level::Update()
 {
     uiManager->Update();
 
+    /*if (KeyManager::GetInstance()->IsOnceKeyDown('W')) {
+        Ascending();
+    }
+    if (KeyManager::GetInstance()->IsOnceKeyDown('S')) {
+        Descending();
+    }*/
+
     if (KeyManager::GetInstance()->IsOnceKeyDown(VK_SPACE)) {
         player->TakeDamage(30);
     }
     
-    if (player->GetState() == EntityState::MOVE) {
-        camera->UpdateCenter(player->GetPosition());
+    if (player) {
+        if (player->GetState() == EntityState::MOVE) {
+            camera->UpdateCenter(player->GetPosition());
+        }
+        else {
+            camera->Update();
+        }
     }
-    else {
-        camera->Update();
-    }
+    
   
 	for (int i = 0; i < TILE_Y; ++i)
 	{
@@ -216,6 +249,14 @@ void Level::Update()
         }
     } ///디버깅을 위해 마우스 왼쪽 버튼을 떼면 그 자리에 있는 타일이 빨간색으로 변하게 해놨습니다. 
 	  ///맵으로 사용하실 땐 타일 선택 로직(이동 및 공격)을 써주세요!
+
+    POINT pPos = { (long)player->GetPosition().x, (long)player->GetPosition().y };
+    if (PtInRect(&ascRc, pPos)) {
+        Ascending();
+    }
+    if (PtInRect(&descRc, pPos)) {
+        Descending();
+    }
 
     SetVisibleTile();
     
@@ -305,7 +346,7 @@ void Level::Render(HDC hdc)
     // Render actors
     for (auto actor : actors)
     {
-		if (map[GetMapIndex(actor->GetPosition().x, actor->GetPosition().y)].visible)
+		//if (map[GetMapIndex(actor->GetPosition().x, actor->GetPosition().y)].visible)
 		{
 			if (actor->GetImage()) {
 				actor->GetImage()->
@@ -795,6 +836,15 @@ void Level::Render8x8Tiles(HDC hdc)
     }
 }
 
+void Level::SetAscending(function<void()> asc)
+{
+    Ascending = asc;
+}
+
+void Level::SetDescending(function<void()> dsc)
+{
+    Descending = dsc;
+}
 // unsigned char CalculateBitmask(const std::vector<std::vector<int>>& map, int x, int y) {
 //     // 8방향 오프셋 (시계 방향으로 좌상, 상, 우상, 우, 우하, 하, 좌하, 좌)
 //     const int dx[8] = {-1, 0, 1, 1, 1, 0, -1, -1};
@@ -822,3 +872,84 @@ void Level::Render8x8Tiles(HDC hdc)
 //     return bitmask;
 // }
 
+void TestLevel::Init(Player* player, int floor, bool isProcedural)
+{
+    turnManager = new TurnManager();
+
+    sampleTile = D2DImageManager::GetInstance()->AddImage(
+        "배틀시티_샘플타일", L"Image/tiles_sewers.png",
+        16, 16);
+
+    wallTile = D2DImageManager::GetInstance()->AddImage("wallTile", L"Image/tiles_sewers.png", 32, 32);
+
+    for (int i = 0; i < TILE_Y; ++i)
+    {
+        for (int j = 0; j < TILE_X; ++j)
+        {
+            tempTile[TILE_X * i + j] =
+            {
+                GRID_POS_OFFSET.x + j * TILE_SIZE,
+                GRID_POS_OFFSET.y + i * TILE_SIZE,
+                GRID_POS_OFFSET.x + (j + 1) * TILE_SIZE,
+                GRID_POS_OFFSET.y + (i + 1) * TILE_SIZE
+            };
+        }
+    }
+
+    mapRc = { tempTile[0].left, tempTile[0].top, tempTile[TILE_X * TILE_Y - 1].right, tempTile[TILE_X * TILE_Y - 1].bottom };
+
+    for (auto& s : shouldBeRender)
+    {
+        s = true;
+    }
+    for (auto& h : hasExplored)
+    {
+        h = true;
+    }
+    for (auto& i : isSeen)
+    {
+        i = true;
+    }
+
+    FileLoad();
+
+    // Set map dimensions
+    mapWidth = TILE_X;
+    mapHeight = TILE_Y;
+
+
+    // Generate dungeon
+    dungeonSystem.GenerateDungeon(false, this, mapWidth, mapHeight, 10, 8, 12, filePath);
+
+    // Place player near entrance
+    FPOINT playerPos = GetEntranceSpawnPosition();
+    player = new Player(playerPos, 1000.f, 20, 50, 2);
+    AddActor(player);
+
+    camera = new Camera();
+    camera->Init(player->GetPosition());
+
+    // UI
+    uiManager = UIManager::GetInstance();
+    uiManager->Init();
+    uiManager->RegisterCamera(camera);
+    uiManager->RegisterPlayer(player);
+    //
+
+    for (auto actor : actors)
+    {
+        if (actor)
+        {
+            turnManager->AddActor(actor);
+            uiManager->RegisterEntity(actor);
+        }
+    }
+    turnManager->Init();
+
+
+    // Item
+    Item* potion1 = new HealPotion(playerPos + FPOINT{ TILE_SIZE , TILE_SIZE });
+    Item* potion2 = new HealPotion(playerPos + FPOINT{ TILE_SIZE , 0 });
+    AddItem(potion1);
+    AddItem(potion2);
+}

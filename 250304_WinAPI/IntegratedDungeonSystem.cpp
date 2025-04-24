@@ -43,11 +43,19 @@
 // std::vector<Monster*> IntegratedDungeonSystem::GenerateMonsters(Level* level, int floorLevel) {
 //     return monsterGenerator.GenerateMonsters(level, currentMapData, floorLevel);
 // }
-void IntegratedDungeonSystem::GenerateDungeon(Level* level, int width, int height, int roomCount, int minRoomSize,
-    int maxRoomSize)
+void IntegratedDungeonSystem::GenerateDungeon(bool isProcedural, Level* level, int width, int height, int roomCount, int minRoomSize,
+    int maxRoomSize, WCHAR* filepath)
 {
-    // dungeonGenerator = new FileLoadDungeonGenerator("TileMapData.dat");
-    dungeonGenerator = new ProceduralDungeonGenerator();
+    if (isProcedural == true) {
+        dungeonGenerator = new ProceduralDungeonGenerator();
+    }
+    else {
+        wstring wFileName = GetFileNameFromWCHAR(filepath);
+        string fileName = WStringToString(wFileName);
+        dungeonGenerator = new FileLoadDungeonGenerator(fileName);
+    }
+   
+    
     // dungeonGenerator = new DungeonGenerator();
     
     // Generate the dungeon layout
@@ -66,4 +74,20 @@ void IntegratedDungeonSystem::GenerateDungeon(Level* level, int width, int heigh
         
     // Add the monsters to the level
     level->AddMonsters(monsters);
+}
+
+wstring IntegratedDungeonSystem::GetFileNameFromWCHAR(const WCHAR* fullPath)
+{
+    std::wstring path(fullPath);
+    size_t pos = path.find_last_of(L"\\/");
+    if (pos == std::wstring::npos) return path;
+    return path.substr(pos + 1);
+}
+
+string IntegratedDungeonSystem::WStringToString(const std::wstring& wstr)
+{
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], -1, NULL, 0, NULL, NULL);
+    std::string result(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], -1, &result[0], size_needed, NULL, NULL);
+    return result;
 }

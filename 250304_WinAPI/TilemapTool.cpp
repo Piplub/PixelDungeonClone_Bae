@@ -8,7 +8,7 @@
 
 HRESULT TilemapTool::Init()
 {
-	//SetClientRect(g_hWnd, TILEMAPTOOL_X, TILEMAPTOOL_Y);
+	SetClientRect(g_hWnd, WINSIZE_X, WINSIZE_Y);
 	rtd = D2DImage::GetRenderTarget();
 	//nowZoomScale = 0;
 
@@ -171,6 +171,7 @@ void TilemapTool::Update()
 
 				MouseManager::GetInstance()->InitPoints();
 				MouseManager::GetInstance()->AlreadyClickUsed();
+				AutoSave();
 			}
 			
 		}
@@ -182,7 +183,9 @@ void TilemapTool::Update()
 			int tileY = (posY - mainOffset.y) / gridSize;
 			if (tileX >= 0 && tileX < TILE_X && tileY >= 0 && tileY < TILE_Y) {
 				tileInfo[tileY * TILE_X + tileX].type = selectedTileType;
+				AutoSave();
 			}
+			
 		}
 
 		if (MouseManager::GetInstance()->GetIsDragging(MOUSE_RIGHT) == true) {
@@ -218,6 +221,7 @@ void TilemapTool::Update()
 					}
 				}
 			}
+			AutoSave();
 			MouseManager::GetInstance()->InitPoints();
 			MouseManager::GetInstance()->AlreadyDragUsed();
 
@@ -228,9 +232,9 @@ void TilemapTool::Update()
 
 	if (saveButton)	saveButton->Update();
 
-	if (KeyManager::GetInstance()->IsOnceKeyUp(VK_LBUTTON)) {
+	/*if (KeyManager::GetInstance()->IsOnceKeyUp(VK_LBUTTON)) {
 		AutoSave();
-	}
+	}*/
 }
 
 void TilemapTool::Render(HDC hdc)
@@ -514,7 +518,7 @@ void TilemapTool::MakeARoom() /////// 타일 인덱스 예외처리
 
 void TilemapTool::Test()
 {
-	SceneManager::GetInstance()->ChangeScene("게임씬");
+	SceneManager::GetInstance()->ChangeScene("테스트게임씬");
 }
 
 POINT TilemapTool::GetCurrentFrame(int tileType)

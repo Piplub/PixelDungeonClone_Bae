@@ -9,6 +9,9 @@ private:
 	map<string, GameObject*> mapScenes;
 	map<string, GameObject*> mapLoadingScenes;
 
+	string nextSceneKey;
+	bool sceneChangeRequested = false;
+
 public:
 	static GameObject* currentScene;
 	static GameObject* loadingScene;
@@ -25,5 +28,7 @@ public:
 	GameObject* AddScene(string key, GameObject* scene);
 	GameObject* AddLoadingScene(string key, GameObject* scene);
 	inline GameObject* GetCurrentScene() { return currentScene; }
+
+	void RequestChangeScene(const string& key);
 };
 

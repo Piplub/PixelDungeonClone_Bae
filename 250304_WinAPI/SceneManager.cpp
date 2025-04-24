@@ -43,6 +43,12 @@ void SceneManager::Release()
 
 void SceneManager::Update()
 {
+	if (sceneChangeRequested)
+	{
+		sceneChangeRequested = false;
+		ChangeScene(nextSceneKey); // 지금 있는 ChangeScene 재활용
+	}
+
 	if (currentScene)
 	{
 		currentScene->Update();
@@ -83,7 +89,7 @@ HRESULT SceneManager::ChangeScene(string key)
 			HMENU hMenu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_TILEMAPTOOLMENU));
 			SetMenu(g_hWnd, hMenu);
 		}
-		else if (key == "테스트맵") {
+		else if (key == "테스트게임씬") {
 			HMENU hMenu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_TESTMAPMENU));
 			SetMenu(g_hWnd, hMenu);
 		}
@@ -176,4 +182,10 @@ GameObject* SceneManager::AddLoadingScene(string key, GameObject* scene)
 	mapLoadingScenes.insert(make_pair(key, scene));
 
 	return scene;
+}
+
+void SceneManager::RequestChangeScene(const string& key)
+{
+	nextSceneKey = key;
+	sceneChangeRequested = true;
 }

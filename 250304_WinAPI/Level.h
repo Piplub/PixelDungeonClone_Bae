@@ -17,15 +17,24 @@ class Camera;
 class UIManager;
 class Level
 {
-private:
-
+protected:
+	//filePath
+	//player
+	Player* player;
+	FPOINT playerInitP;
 	//map
 	Map map[TILE_Y * TILE_X];
 	RECT mapRc;
 	RECT tempTile[TILE_Y * TILE_X]; //타일 이미지 넣기 전 임시 이미지 그리기용 배열
 	int rendermap[TILE_Y * TILE_X];
-	
+	int levelFloor;
 	Camera* camera;
+
+	int ascInd;
+	int descInd;
+	RECT ascRc;
+	RECT descRc;
+
 
 	float nowZoomScale;
 
@@ -54,7 +63,7 @@ private:
 
 	TurnManager* turnManager;
 
-	Player* player;
+	
 	vector<Entity*> actors;
 	IntegratedDungeonSystem dungeonSystem;
 
@@ -78,10 +87,14 @@ private:
 	};
 
 	// UI Sample
-	UIManager* uiManager;;
+	UIManager* uiManager;
+
+	//Ascending, Descending
+	function<void()> Ascending;
+	function<void()> Descending;
 	
 public:
-	void Init();
+	virtual void Init(Player* player, int floor = 0, bool isProcedural = true);
 	void Release();
 	void Update();
 	void Render(HDC hdc);
@@ -106,9 +119,16 @@ public:
 	bool IsSolid(int x, int y) const;
 	FPOINT GetRandomFloorTile() const;
 	FPOINT GetEntranceSpawnPosition() const;
+	FPOINT GetPlayerInitP() const{ return playerInitP; }
 	void ResetVisibleTile();
 	void SetVisibleTile();
 	void Render8x8Tiles(HDC hdc);
+
+	void SetAscending(function<void()> asc);
+	void SetDescending(function<void()> dsc);
+
+	
+
 
 	Level();
 	~Level();
@@ -159,5 +179,14 @@ public:
 
 	// AI
 	FPOINT GetPlayerPos();
+};
+
+class TestLevel : public Level {
+private:
+	WCHAR* filePath;
+public:
+	virtual void Init(Player* player, int floor, bool isProcedural) override;
+
+	TestLevel(WCHAR* filepath) : filePath(filepath) {}
 };
 
