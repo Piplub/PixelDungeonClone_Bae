@@ -15,7 +15,7 @@ class Level;
 class Monster : public Entity
 {
 public:
-    Monster(FPOINT pos, float speed, int hp, int attDmg, int defense);
+    Monster();
     virtual ~Monster();
 
     virtual void Act(Level* level) override;
@@ -31,7 +31,7 @@ public:
 
     // monsterAI
     MonsterAI* monsterAi;
-    void SetEntityState(EntityState state) { this->curState = state; }
+    // void SetEntityState(EntityState state) { this->curState = state; }
     void SetTarget(Entity* actor) { this->target = actor; }
     void SetTargetPos(FPOINT targetPos) { this->targetPos = targetPos; }
     void SetDestPos(FPOINT destPos) { this->destPos = destPos; }

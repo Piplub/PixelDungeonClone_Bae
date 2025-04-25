@@ -77,7 +77,7 @@ void Inventory::UseItem(string name)
     if (items[index].count <= 0) return;
 
     Item* item = items[index].item;
-    item->Use(owner);
+    item->Use(owner, nullptr); // 텔포 스크롤떄문에 Use함수 수정중,,
     items[index].count--;
      
     if (items[index].count <= 0)

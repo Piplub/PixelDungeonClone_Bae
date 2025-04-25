@@ -23,10 +23,13 @@ public:
     inline void SetJustMoved(bool moved) { justMoved = moved; }
 
     void Update() override;
+
     void Render(HDC hdc) override;
     virtual void Act(Level* level) override;
     virtual void Attack(Level* level) override;
     void Heal(int healAmount) override;
+    void UseItem(Level* level);
+
     void SetState(EntityState state) override;
     
     void Move(Level* level);

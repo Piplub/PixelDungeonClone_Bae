@@ -51,21 +51,21 @@ void MonsterAI::Act(Level* level, Monster* monster, bool isInFov, bool isAlert)
         if (prevMonsterState == MonsterState::SLEEP)
         {
             currMonsterState = MonsterState::WAKE;
-            monster->SetEntityState(EntityState::WAIT);
+            monster->SetState(EntityState::WAIT);
         }
         else
         {
-            monster->SetEntityState(EntityState::SLEEP);
+            monster->SetState(EntityState::SLEEP);
         }
         break;
     case MonsterState::FOLLOW:
-        monster->SetEntityState(EntityState::MOVE);
+        monster->SetState(EntityState::MOVE);
         break;
     case MonsterState::ATTACK:
-        monster->SetEntityState(EntityState::ATTACK);
+        monster->SetState(EntityState::ATTACK);
         break;
     case MonsterState::WANDER:
-        monster->SetEntityState(EntityState::MOVE);
+        monster->SetState(EntityState::MOVE);
         break;
     }
 

@@ -24,7 +24,7 @@ public:
     {
         SetStatData({
             L"스탯창",
-            entity->GetAttDmg(),
+            entity->GetAttDmg().max,
             entity->GetHP(),
             entity->GetMaxHP(),
             entity->GetExp(),

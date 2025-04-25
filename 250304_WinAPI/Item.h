@@ -3,6 +3,7 @@
 
 class Entity;
 class D2DImage;
+class Level;
 
 enum class ItemType
 {
@@ -23,7 +24,7 @@ public:
 	Item();
 	virtual ~Item();
 
-	virtual void Use(Entity* user);
+	virtual void Use(Entity* user, Level* level);
 	virtual void Render(HDC hdc) = 0;
 
 	inline string GetName() { if (name.empty()) return ""; return name; }

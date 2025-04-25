@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "D2DImage.h"
+#include "FModSoundPlayer.h"
 #include "MainGame.h"
 
 HINSTANCE g_hInstance;
@@ -49,6 +50,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #pragma region System_Initialize
 	D2DImage::InitD2D(g_hWnd);
 	TimerManager::GetInstance()->Init();
+	FModSoundPlayer::GetInstance()->Init();
 	g_mainGame.Init();
 #pragma endregion
 
@@ -68,12 +70,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		else
 		{
 			TimerManager::GetInstance()->Update();
+			FModSoundPlayer::GetInstance()->Update();
 			g_mainGame.Update();
 			g_mainGame.Render();
 		}
 	}
 
 	g_mainGame.Release();
+	FModSoundPlayer::GetInstance()->Release();
 	TimerManager::GetInstance()->Release();
 
 	return (int)message.wParam;

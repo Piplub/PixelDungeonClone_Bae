@@ -15,7 +15,7 @@ enum class EntityState
     MOVE,
     ATTACK,
     DEAD,
-    DUMMY
+    USING_ITEM
 };
 enum class EntityType
 {
@@ -24,6 +24,11 @@ enum class EntityType
     NPC,
     OBJECT
 };
+struct Damage
+{
+    int min;
+    int max;
+};
 
 class Entity
 {
@@ -31,9 +36,7 @@ protected:
     //test
     D2DImage* image;
     int curAnimFrame;
-    float curTime, maxAnimTime;
-    int startFrame, endFrame;
-    bool stayEndFrame;
+
     // animation
     Animator* animator;
 
@@ -47,14 +50,15 @@ protected:
 
     // 전투 속성
     int hp, maxHp;
-    int attackDmg, defense;
+    Damage attackDmg;
+    int defense;
     int exp, maxExp, level;
     Entity* target;
 
     //에너지 턴 test
     float energy = 10.f;
     float actionCost;
-    float energyPerTurn = 10.0f;
+    float energyPerTurn;
 
     //길찾기
     vector<FPOINT> path;
@@ -67,7 +71,6 @@ public:
     int graphicID;
     bool isActive;
 
-    wchar_t szText[128]; // 디버깅용
 public:
     Entity();
     virtual ~Entity();
@@ -76,7 +79,6 @@ public:
     virtual void Render(HDC hdc);
     virtual void Act(Level* level);
     virtual void Attack(Level* level) {};
-    void SetAimData(int start, int end, float maxTime);
 
     virtual bool NeedsInput() = 0;
     virtual bool IsBusy() = 0;
@@ -89,10 +91,9 @@ public:
     inline void SetPosition(const float x, const float y) { this->position.x = x; this->position.y = y; }
     inline void SetPosition(FPOINT postion) { this->position.x = postion.x; this->position.y = postion.y; }
     inline FPOINT GetPosition() const { return position; }
-    inline int GetAttDmg() const { return attackDmg; }
+    inline Damage GetAttDmg() const { return attackDmg; }
     inline int GetDefense() const { return defense; }
     inline EntityState GetState() const { return curState; }
-    inline float GetSpeed() const { return speed; }
     inline EntityType GetType() const { return type; }
     inline int GetExp() { return exp; }
     inline int GetMaxExp() { return maxExp; }
@@ -112,7 +113,7 @@ public:
     virtual void Heal(int healAmount) {};   // HealthPotion
 
     void Stop() { destPos = position; }
-    virtual void SetState(EntityState state) {};
+    virtual void SetState(EntityState state);
 
 
     // 옵저버

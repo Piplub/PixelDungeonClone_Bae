@@ -25,9 +25,6 @@
       <Filter>MainGame</Filter>
     </ClCompile>
     <ClCompile Include="MouseManager.cpp" />
-    <ClCompile Include="Monster.cpp">
-      <Filter>MainGame\GamePlay\Entity</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>MainGame\GamePlay\Entity</Filter>
     </ClCompile>
@@ -145,6 +142,19 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="TestGameScene.cpp">
+    <ClCompile Include="Gnoll.cpp">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Crab.cpp">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Rat.cpp">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="TeleportScroll.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -176,9 +186,6 @@
       <Filter>MainGame</Filter>
     </ClInclude>
     <ClInclude Include="MouseManager.h" />
-    <ClInclude Include="Monster.h">
-      <Filter>MainGame\GamePlay\Entity</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>MainGame\GamePlay\Entity</Filter>
     </ClInclude>
@@ -413,6 +420,20 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TestGameScene.h">
+
+    <ClInclude Include="Gnoll.h">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Crab.h">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Rat.h">
+      <Filter>MainGame\GamePlay\Entity\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="TeleportScroll.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -487,6 +508,9 @@
     </Filter>
     <Filter Include="Item\Equipment">
       <UniqueIdentifier>{ce0e6fd1-2af8-42ca-9acf-26f3cc12e9b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GamePlay\Entity\Monster">
+      <UniqueIdentifier>{5d534600-69fd-4d43-b2b8-0739defdcf57}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

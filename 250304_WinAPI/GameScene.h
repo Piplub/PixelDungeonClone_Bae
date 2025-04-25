@@ -21,6 +21,7 @@ public:
 	virtual void Render(HDC hdc);
 
 	void Restart();
+
 	void Ascend();
 	void Descend();
 

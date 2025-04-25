@@ -22,6 +22,7 @@ protected:
 	//player
 	Player* player;
 	FPOINT playerInitP;
+
 	//map
 	Map map[TILE_Y * TILE_X];
 	RECT mapRc;
@@ -51,7 +52,9 @@ protected:
 
 	D2DImage* sampleTile;
 	D2DImage* wallTile;
-
+	// D2DImage* blurImage;
+	// D2DImage* shadowImage;
+	
 	std::vector<std::vector<int>> mapData;
     
 	// 던전 생성기
@@ -93,7 +96,9 @@ protected:
 	
 	
 public:
+
 	virtual void Init(Player* player, int floor = 0, bool isProcedural = true);
+
 	void Release();
 	void Update();
 	void Render(HDC hdc);
@@ -184,7 +189,9 @@ class TestLevel : public Level {
 private:
 	WCHAR* filePath;
 public:
+
 	virtual void Init(Player* player, int floor, bool isProcedural) override;
+
 
 	TestLevel(WCHAR* filepath) : filePath(filepath) {}
 };

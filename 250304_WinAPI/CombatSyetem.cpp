@@ -3,7 +3,13 @@
 
 int CombatSyetem::CalculateDmg(Entity* attacker, Entity* defender)
 {
-	return max(attacker->GetAttDmg() - defender->GetDefense(), 0);
+	// 공격자 데미지 min ~ max 사이 랜덤값으로 설정
+	random_device rd;
+	mt19937_64 eng(rd());
+	uniform_int_distribution<int> dist(attacker->GetAttDmg().min, attacker->GetAttDmg().max);
+
+	int applyDmg = dist(eng) - defender->GetDefense();
+	return max(applyDmg, 0);
 }
 
 void CombatSyetem::ProcessAttack(Entity* attacker, Entity* defender)

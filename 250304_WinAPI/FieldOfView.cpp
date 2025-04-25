@@ -51,12 +51,14 @@ void FieldOfView::Calculate(Map(&map)[TILE_Y][TILE_X], int viewRange, int tileId
 			// 3) 비차단 타일 표시
 			if (!blocked && (tile.type != 0 && tile.type != 6)) {
 				tile.visible = true;
+				if (tile.explored == false) tile.explored = true;
 				//tile.SetColor(RGB(0, 255, 0));
 			}
 
 			// 4) 벽 발견 시 재귀 분기
 			if (tile.type == 0 || tile.type == 6) {
 				tile.visible = true;
+				if (tile.explored == false) tile.explored = true;
 				blocked = true;
 				Calculate(map, viewRange, tileIdX, tileIdY,
 					depth + 1, exploreStartSlope, leftSlope, direction);
@@ -68,6 +70,7 @@ void FieldOfView::Calculate(Map(&map)[TILE_Y][TILE_X], int viewRange, int tileId
 				blocked = false;
 				startSlope = nextStart;
 				tile.visible = true;
+				if (tile.explored == false) tile.explored = true;
 				//tile.SetColor(RGB(0, 255, 0));
 			}
 		}

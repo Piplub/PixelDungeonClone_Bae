@@ -146,3 +146,22 @@ inline void SetClientRect(HWND hWnd, int width, int height)
 	SetWindowPos(hWnd, NULL, 0, 0, rc.right - rc.left, 
 		rc.bottom - rc.top, SWP_NOMOVE | SWP_NOZORDER);
 }
+
+inline std::wstring convert_to_wstring(const std::string& str, UINT codePage)
+{
+	int size_needed = MultiByteToWideChar(codePage, 0, str.c_str(), (int)str.size(), NULL, 0);
+	std::wstring wstrTo( size_needed, 0 );
+	MultiByteToWideChar(codePage, 0, str.c_str(), (int)str.size(), &wstrTo[0], size_needed);
+	return wstrTo;
+}
+
+inline std::wstring utf8_to_wstring(const std::string& str)
+{
+	return convert_to_wstring(str, CP_UTF8);
+}
+
+inline std::wstring cp949_to_wstring(const std::string& str)
+{
+	return convert_to_wstring(str, 949);
+}
+

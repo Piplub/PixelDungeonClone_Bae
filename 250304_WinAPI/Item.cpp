@@ -1,15 +1,16 @@
-#include "Item.h"
+ï»¿#include "Item.h"
 #include "D2DImageManager.h"
+#include "Level.h"
 
 Item::Item()
 {
-	image = D2DImageManager::GetInstance()->AddImage("¾ÆÀÌÅÛ", L"Image\\Items.png", 16, 32);
+	image = D2DImageManager::GetInstance()->AddImage("ì•„ì´í…œ", L"Image\\Items.png", 16, 32);
 }
 
 Item::~Item()
 {
 }
 
-void Item::Use(Entity* user)
+void Item::Use(Entity* user, Level* level)
 {
 }

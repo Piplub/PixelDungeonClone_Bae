@@ -15,10 +15,10 @@ HealPotion::~HealPotion()
 {
 }
 
-void HealPotion::Use(Entity* user)
+void HealPotion::Use(Entity* user, Level* level)
 {
 	if (!user || !user->IsAlive())	return;
-	
+
 	user->Heal(healAmount);
 }
 

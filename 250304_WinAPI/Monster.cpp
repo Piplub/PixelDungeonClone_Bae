@@ -6,15 +6,10 @@
 #include "PathFinder.h"
 #include "CombatSyetem.h"
 #include "MonsterAI.h"
+#include "Animator.h"
 
-Monster::Monster(FPOINT pos, float speed, int hp, int attDmg, int defense)
+Monster::Monster()
 {
-    position = pos;
-    this->speed = speed;
-    this->hp = hp;
-    this->maxHp = hp;
-    this->attackDmg = attDmg;
-    this->defense = defense;
     isMoving = false;
     isActive = true;
 
@@ -24,16 +19,14 @@ Monster::Monster(FPOINT pos, float speed, int hp, int attDmg, int defense)
     targetPos = { position.x + TILE_SIZE, position.y + TILE_SIZE };
     // targetPos = pos
 
-    // 에너지 test
-    actionCost = 10.f;
-    energyPerTurn = 10.0f;
-
     //길찾기-갈 곳을 받아온다?-HUNTING에서 FOLLOW에서 사용
     finder = new PathFinder();
     destPos = position;
 
     // AI
     monsterAi = new MonsterAI;
+    // 애니메이터
+    animator = new Animator();
 }
 
 Monster::~Monster()
@@ -48,10 +41,10 @@ void Monster::Act(Level* level)
         monsterAi->Act(level, this);
         break;
     case EntityState::WAIT:
-        curState = EntityState::IDLE;
+        SetState(EntityState::IDLE);
         break;
     case EntityState::SLEEP:
-        curState = EntityState::IDLE;
+        SetState(EntityState::IDLE);
         break;
     case EntityState::MOVE: // 움직일겨(Hunting, Wanering)-상태변환
         Move(level);
@@ -73,12 +66,12 @@ void Monster::Act(Level* level)
 
 void Monster::Attack(Level* level)
 {
-    if (target)
-    {
-        CombatSyetem::GetInstance()->ProcessAttack(this, target);
-       SetRandomTargetPos();
-       curState = EntityState::IDLE;
-    }
+    //if (target)
+    //{
+    //    CombatSyetem::GetInstance()->ProcessAttack(this, target);
+    //   SetRandomTargetPos();
+    //   curState = EntityState::IDLE;
+    //}
 }
 
 //void Monster::ActIdle(Level* level)
@@ -113,7 +106,7 @@ void Monster::Move(Level* level)// 한 턴 이동
     if ((map && !map->CanGo()) || level->GetActorAt(targetPos))
     {
        // SetRandomTargetPos();
-        curState = EntityState::IDLE;
+        SetState(EntityState::IDLE);
         return;
     }
 
@@ -136,14 +129,14 @@ void Monster::Move(Level* level)// 한 턴 이동
             // 테스트용이라 도착지 정하는건 수정해야함
             //isMoving = false;
             //SetRandomTargetPos();
-            curState = EntityState::IDLE;
+            SetState(EntityState::IDLE);
         }
     }
     else
     {
         position = targetPos;
        // SetRandomTargetPos();
-        curState = EntityState::IDLE;
+        SetState(EntityState::IDLE);
     }
 
 }

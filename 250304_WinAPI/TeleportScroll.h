@@ -1,15 +1,12 @@
 ﻿#pragma once
 #include "Consumable.h"
-
-
-class HealPotion : public Consumable
+class TeleportScroll : public Consumable
 {
 private:
-	int healAmount = 3;
 
 public:
-	HealPotion(FPOINT position);
-	virtual ~HealPotion();
+	TeleportScroll();
+	virtual ~TeleportScroll();
 
 	void Use(Entity* user, Level* level) override;
 	void Render(HDC hdc) override;
